@@ -1,0 +1,25 @@
+{
+  "name": "ubc-term-finder",
+  "version": "1.0.0",
+  "description": "Fnd the UBC year/session/term codes given a date.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/steven-wolfman/ubc-term-finder.git"
+  },
+  "keywords": [
+    "ubc",
+    "date",
+    "session",
+    "term"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/steven-wolfman/ubc-term-finder/issues"
+  },
+  "homepage": "https://github.com/steven-wolfman/ubc-term-finder#readme"
+}
