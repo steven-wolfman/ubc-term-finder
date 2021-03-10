@@ -16,10 +16,16 @@
     "session",
     "term"
   ],
-  "author": "",
+  "author": "Steven Wolfman <wolf@mail.ubc.ca> (https://www.cs.ubc.ca/~wolf/)",
+  "contributors": [
+    "Piam Kiarostami"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/steven-wolfman/ubc-term-finder/issues"
   },
-  "homepage": "https://github.com/steven-wolfman/ubc-term-finder#readme"
+  "homepage": "https://github.com/steven-wolfman/ubc-term-finder#readme",
+  "devDependencies": {
+    "jest": "^26.6.3"
+  }
 }
