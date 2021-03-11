@@ -6,7 +6,7 @@ One of the main developers (Steve) is UBC CPSC faculty and doing this in part ju
 
 ### Starting
 
-To publish an npm package, we're starting from [BetterStack's best practices article](https://betterstack.dev/blog/npm-package-best-practices/).
+To publish an npm package, we're starting from [BetterStack's best practices article](https://betterstack.dev/blog/npm-package-best-practices/) and also from [khalilstemmler.com's article on setting up TypeScript + Node.js](https://khalilstemmler.com/blogs/typescript/node-starter-project/).
 
 To get set up, Steve created a public [Github](https://github.com/) repo with an MIT license and the Node .gitignore file. For the name, the BetterStack article and [npm's guidelines for package names](https://docs.npmjs.com/package-name-guidelines) suggested short, clear, lowercase naming, and we wanted the Github repo and npm package names to match. `ubc-term-finder` seemed short and clear; so, that's the name of the [repo](https://github.com/steven-wolfman/ubc-term-finder).
 
@@ -28,9 +28,9 @@ So, let's get all that set up:
 2. Install jest for development: `npm install --save-dev jest @types/jest`. The `--save-dev` part ensures that installing the `ubc-term-finder` package won't install jest, but cloning the repo and running `npm install` locally will. This also includes types for jest tests, to support typescript later on.
 3. Install babel for development: `npm install --save-dev babel-jest @babel/core @babel/preset-env @babel/cli`. This includes `babel-jest` for integration with jest, see the [jest notes on TypeScript/Babel](https://jestjs.io/docs/getting-started#using-typescript).
 4. [Install typescript](https://www.typescriptlang.org/download) for development: `npm install --save-dev typescript @babel/preset-typescript`
-5. TODO: tslint and prettier?
+5. Next up, [`eslint`]() ([`tslint` has been deprecated](https://www.npmjs.com/package/tslint)) and [`prettier`](https://prettier.io/), which interact fairly heavily, since they serve similar purposes: `npm install --save-dev eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin prettier`. This doesn't yet set up config files for either one. Then, for integration: `npm install --save-dev eslint-config-prettier eslint-plugin-prettier`
 
-Now everything is installed, but it needs to be configured:
+Now everything is installed, but mostly still needs to be configured:
 
 1. [Babel config](https://babeljs.io/docs/en/configuration#packagejson): Edit the `package.json` file to include the `babel` section:
 
@@ -40,7 +40,12 @@ Now everything is installed, but it needs to be configured:
    }
    ```
 
-2. [Typescript config](https://www.typescriptlang.org/docs/handbook/babel-with-typescript.html): Create/edit `tsconfig.json`:
+2. [Typescript config](https://www.typescriptlang.org/docs/handbook/babel-with-typescript.html): Create/edit `tsconfig.json`. We used a slightly edited version of the command from the [stemmler](https://khalilstemmler.com/blogs/typescript/node-starter-project/) tutorial with `--allowJs` set to `false`:
+   ```bash
+   npx tsc --init --rootDir src --outDir build --esModuleInterop --resolveJsonModule \
+           --lib es6 --module commonjs --allowJs false --noImplicitAny true
+   ```
+   Then edited that to modify/add these options from the typescript config notes for Babel:
    ```json
    {
      "compilerOptions": {
