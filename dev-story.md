@@ -46,18 +46,58 @@ Now everything is installed, but mostly still needs to be configured:
    npx tsc --init --rootDir src --outDir build --esModuleInterop --resolveJsonModule \
            --lib es6 --module commonjs --allowJs false --noImplicitAny true
    ```
-   <!-- Then edited that to modify/add these options from the typescript config notes for Babel:
+     <!-- Then edited that to modify/add these options from the typescript config notes for Babel:
+     ```json
+     {
+       "compilerOptions": {
+         // Ensure that .d.ts files are created by tsc, but not .js files
+         "declaration": true,
+         "emitDeclarationOnly": true,
+         // Ensure that Babel can safely transpile files in the TypeScript project
+         "isolatedModules": true
+       }
+     }
+     ``` -->
+   We also added include/exclude options to this:
    ```json
    {
-     "compilerOptions": {
-       // Ensure that .d.ts files are created by tsc, but not .js files
-       "declaration": true,
-       "emitDeclarationOnly": true,
-       // Ensure that Babel can safely transpile files in the TypeScript project
-       "isolatedModules": true
+   "compilerOptions": {
+   }
+   "exclude": ["node_modules", "build"],
+   "include": ["src"]
+   }
+   ```
+   Separately, `package.json` needs some configuration both for our directory structure and for `typescript` specifically. Added these attributes to `package.json`:
+   ```json
+   {
+     "main": "build/index.js", // tsconfig.json is set up to put build files into the build directory
+     "typings": "build/index.d.ts", // index.js is plain JS, but tsc puts type info here
+     "files": [
+       "build" // only the build directory is needed for install of the package as a dependency
+     ]
+   }
+   ```
+   Note that some [automatically included files besides `build`](https://docs.npmjs.com/cli/v7/configuring-npm/package-json#files) still go into the package installs.
+3. Lots of scripts could use configuration in `package.json`. Some of this is really about configuration of tools described elsewhere, but it seemed valuable to wrap up in one place. To make it easier to run the scripts, we ran [`npm install npm-run-all --saved-dev`](https://www.npmjs.com/package/npm-run-all), but this could be replaced with, e.g., `npm run script1 && npm run script 2 && ...`. Much of this section is based on the [`react-svg`](https://github.com/tanem/react-svg) project as a working example.
+   ```json
+   {
+     "scripts": {
+       "build": "run-s clean compile",
+       "test": "run-s check:* lint build test:*",
+       "compile": "tsc",
+       "clean": "run-p clean:*",
+       "check:format": "prettier --list-different \"**/*.{js,ts,tsx}\"",
+       "check:types": "tsc --noEmit",
+       "clean:compiled": "del compiled",
+       "clean:coverage": "del coverage",
+       "clean:build": "del build",
+       "format": "prettier --write \"**/*.{js,ts,tsx}\"",
+       "lint": "eslint .",
+       "test:plain": "jest"
      }
    }
-   ``` -->
+   ```
+   In order, this sets up a build script (simply running the clean and compile scripts), a test script (running several scripts as before but using globbing (`*`) to run all the various cleaning/testing scripts), a compile script (that just runs typescript, which is already configured via `tsconfig.json` to understand where to look for source and to place output), and to clean up (running all the cleanup scripts in parallel, which themselves just delete working folders). Format checking uses `prettier` to find if it would complain about any Typescript (or Java or Typescript/JSX) files. Typechecking runs tsc but doesn't produce output. Linting simply runs `eslint` (which needs to be separately configured). Testing runs `jest` (which needs to be separately configured). Note that `react-svg` takes advantage of specifying a config file to `jest` in order to have many flavors of testing. We may want to do that with `jest` or with another command.
 
 # Unexplained Oddities
 
@@ -66,3 +106,7 @@ Now everything is installed, but mostly still needs to be configured:
 We originally installed with `babel` but got rid of it. It's not in `package.json`.
 
 Ah, the [`npm list`](https://docs.npmjs.com/cli/v7/commands/npm-ls) command can give more of your dependency tree with, e.g., `npm list --depth=3`, or the [`npm explain`](https://docs.npmjs.com/cli/v7/commands/npm-explain) command can give you bottom-up info. There may be other reasons we have it, but `jest` has a bunch of dependencies into babel.
+
+## Why didn't running `npx tsc --init` with `build` and `src` directories indicated add include/exclude to tsconfig.json?
+
+No idea. Should we have used one of the ["typescript base configs"](https://www.typescriptlang.org/docs/handbook/tsconfig-json.html#tsconfig-bases) instead??

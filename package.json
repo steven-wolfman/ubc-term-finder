@@ -2,9 +2,24 @@
   "name": "ubc-term-finder",
   "version": "1.0.0",
   "description": "Fnd the UBC year/session/term codes given a date.",
-  "main": "index.js",
+  "main": "build/index.js",
+  "typings": "build/index.d.ts",
+  "files": [
+    "build"
+  ],
   "scripts": {
-    "test": "jest"
+    "build": "run-s clean compile",
+    "test": "run-s check:* lint build test:*",
+    "compile": "tsc",
+    "clean": "run-p clean:*",
+    "check:format": "prettier --list-different \"**/*.{js,ts,tsx}\"",
+    "check:types": "tsc --noEmit",
+    "clean:compiled": "del compiled",
+    "clean:coverage": "del coverage",
+    "clean:build": "del build",
+    "format": "prettier --write \"**/*.{js,ts,tsx}\"",
+    "lint": "eslint .",
+    "test:plain": "jest"
   },
   "repository": {
     "type": "git",
