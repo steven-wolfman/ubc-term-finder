@@ -42,10 +42,12 @@ Now everything is installed, but mostly still needs to be configured:
  -->
 
 2. [Typescript config](https://www.typescriptlang.org/docs/handbook/tsconfig-json.html): Create/edit `tsconfig.json`. We used a slightly edited version of the command from the [stemmler](https://khalilstemmler.com/blogs/typescript/node-starter-project/) tutorial with `--allowJs` set to `false`:
+
    ```bash
    npx tsc --init --rootDir src --outDir build --esModuleInterop --resolveJsonModule \
            --lib es6 --module commonjs --allowJs false --noImplicitAny true
    ```
+
      <!-- Then edited that to modify/add these options from the typescript config notes for Babel:
      ```json
      {
@@ -58,7 +60,9 @@ Now everything is installed, but mostly still needs to be configured:
        }
      }
      ``` -->
+
    We also added include/exclude options to this:
+
    ```json
    {
    "compilerOptions": {
@@ -67,7 +71,9 @@ Now everything is installed, but mostly still needs to be configured:
    "include": ["src"]
    }
    ```
+
    Separately, `package.json` needs some configuration both for our directory structure and for `typescript` specifically. Added these attributes to `package.json`:
+
    ```json
    {
      "main": "build/index.js", // tsconfig.json is set up to put build files into the build directory
@@ -77,7 +83,11 @@ Now everything is installed, but mostly still needs to be configured:
      ]
    }
    ```
+
    Note that some [automatically included files besides `build`](https://docs.npmjs.com/cli/v7/configuring-npm/package-json#files) still go into the package installs.
+
+   Finally, since we chose `build` as the output directory, we added `build` as a line in `.gitignore` to avoid versioning automatically-generated build files!
+
 3. Lots of scripts could use configuration in `package.json`. Some of this is really about configuration of tools described elsewhere, but it seemed valuable to wrap up in one place. To make it easier to run the scripts, we ran [`npm install npm-run-all --saved-dev`](https://www.npmjs.com/package/npm-run-all), but this could be replaced with, e.g., `npm run script1 && npm run script 2 && ...`. Much of this section is based on the [`react-svg`](https://github.com/tanem/react-svg) project as a working example.
    ```json
    {
