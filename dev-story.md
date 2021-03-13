@@ -101,7 +101,7 @@ Now everything is installed, but mostly still needs to be configured:
    ```
 
 4. TODO: configure eslint!
-5. Lots of scripts could use configuration in `package.json`. Some of this is really about configuration of tools described elsewhere, but it seemed valuable to wrap up in one place. To make it easier to run the scripts, we ran [`npm install npm-run-all --saved-dev`](https://www.npmjs.com/package/npm-run-all), but this could be replaced with, e.g., `npm run script1 && npm run script 2 && ...`. Much of this section is based on the [`react-svg`](https://github.com/tanem/react-svg) project as a working example.
+5. Lots of scripts could use configuration in `package.json`. Some of this is really about configuration of tools described elsewhere, but it seemed valuable to wrap up in one place. To make it easier to run the scripts, we ran [`npm install npm-run-all --save-dev`](https://www.npmjs.com/package/npm-run-all), but this could be replaced with, e.g., `npm run script1 && npm run script 2 && ...`. Much of this section is based on the [`react-svg`](https://github.com/tanem/react-svg) project as a working example.
    ```json
    {
      "scripts": {
