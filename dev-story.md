@@ -25,9 +25,9 @@ This will be an npm package using [TypeScript](https://www.typescriptlang.org/).
 So, let's get all that set up:
 
 1. From the terminal, run `npm init`. Most of the questions can get the default or obvious response (e.g., an edited version of the descrption from `README.md` for the `description:` field). The `test command:` should be `jest` for this project. Guideline on [keywords](https://docs.npmjs.com/cli/v7/configuring-npm/package-json#keywords) is pretty slim; so we just picked a few. They're easy to change in the `package.json` file. We used an MIT license. The [author field](https://docs.npmjs.com/cli/v7/configuring-npm/package-json#people-fields-author-contributors) is meant to be one person; so, Steve put himself in and Piam as a collaborator by editing `package.json` after the fact.
-2. Install jest for development: `npm install --save-dev jest @types/jest`. The `--save-dev` part ensures that installing the `ubc-term-finder` package won't install jest, but cloning the repo and running `npm install` locally will. This also includes types for jest tests, to support typescript later on.
+2. [Install typescript](https://www.typescriptlang.org/download) for development: `npm install --save-dev typescript`.
+3. Install jest for development: `npm install --save-dev jest @types/jest ts-jest`. The `--save-dev` part ensures that installing the `ubc-term-finder` package won't install jest, but cloning the repo and running `npm install` locally will. This also includes jest typescript support, to support typescript later on.
 <!-- 3. Install babel for development: `npm install --save-dev babel-jest @babel/core @babel/preset-env @babel/cli`. This includes `babel-jest` for integration with jest, see the [jest notes on TypeScript/Babel](https://jestjs.io/docs/getting-started#using-typescript). If we use this, we'll also want `@babel/preset-typescript`. -->
-3. [Install typescript](https://www.typescriptlang.org/download) for development: `npm install --save-dev typescript`.
 4. Next up, [`eslint`]() ([`tslint` has been deprecated](https://www.npmjs.com/package/tslint)) and [`prettier`](https://prettier.io/), which interact fairly heavily, since they serve similar purposes: `npm install --save-dev eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin prettier`. This doesn't yet set up config files for either one. Then, for integration: `npm install --save-dev eslint-config-prettier eslint-plugin-prettier`
 
 Now everything is installed, but mostly still needs to be configured:
@@ -88,7 +88,20 @@ Now everything is installed, but mostly still needs to be configured:
 
    Finally, since we chose `build` as the output directory, we added `build` as a line in `.gitignore` to avoid versioning automatically-generated build files!
 
-3. Lots of scripts could use configuration in `package.json`. Some of this is really about configuration of tools described elsewhere, but it seemed valuable to wrap up in one place. To make it easier to run the scripts, we ran [`npm install npm-run-all --saved-dev`](https://www.npmjs.com/package/npm-run-all), but this could be replaced with, e.g., `npm run script1 && npm run script 2 && ...`. Much of this section is based on the [`react-svg`](https://github.com/tanem/react-svg) project as a working example.
+3. [jest config](https://www.npmjs.com/package/ts-jest): The `ts-jest` module comes with configuration assistance via `npx ts-jest config:init`. That produces a new `jest.config.js` file. (Funny that it produces JavaScript and not TypeScript, even if [`ts-node`](https://github.com/TypeStrong/ts-node) is installed, as advised by the [jest config docs](https://jestjs.io/docs/configuration).) Along with those defaults, we updated the `testMatch` to recognize the `tests` directory as special, which didn't seem to be in other tutorials:
+
+   ```javascript
+   import { defaults } from "jest-config";
+
+   module.exports = {
+     preset: "ts-jest",
+     testEnvironment: "node",
+     testMatch: [...defaults.testMatch, "./tests/**/?*(*.)+[jt]s?(x)"],
+   };
+   ```
+
+4. TODO: configure eslint!
+5. Lots of scripts could use configuration in `package.json`. Some of this is really about configuration of tools described elsewhere, but it seemed valuable to wrap up in one place. To make it easier to run the scripts, we ran [`npm install npm-run-all --saved-dev`](https://www.npmjs.com/package/npm-run-all), but this could be replaced with, e.g., `npm run script1 && npm run script 2 && ...`. Much of this section is based on the [`react-svg`](https://github.com/tanem/react-svg) project as a working example.
    ```json
    {
      "scripts": {
