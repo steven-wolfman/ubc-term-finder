@@ -28,7 +28,7 @@ So, let's get all that set up:
 2. [Install typescript](https://www.typescriptlang.org/download) for development: `npm install --save-dev typescript`.
 3. Install jest for development: `npm install --save-dev jest @types/jest ts-jest`. The `--save-dev` part ensures that installing the `ubc-term-finder` package won't install jest, but cloning the repo and running `npm install` locally will. This also includes jest typescript support, to support typescript later on.
 <!-- 3. Install babel for development: `npm install --save-dev babel-jest @babel/core @babel/preset-env @babel/cli`. This includes `babel-jest` for integration with jest, see the [jest notes on TypeScript/Babel](https://jestjs.io/docs/getting-started#using-typescript). If we use this, we'll also want `@babel/preset-typescript`. -->
-4. Next up, [`eslint`]() ([`tslint` has been deprecated](https://www.npmjs.com/package/tslint)) and [`prettier`](https://prettier.io/), which interact fairly heavily, since they serve similar purposes: `npm install --save-dev eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin prettier`. This doesn't yet set up config files for either one. Then, for integration: `npm install --save-dev eslint-config-prettier eslint-plugin-prettier`
+4. Next up, [`eslint`]() ([`tslint` has been deprecated](https://www.npmjs.com/package/tslint)) and [`prettier`](https://prettier.io/), which interact fairly heavily, since they serve similar purposes: `npm install --save-dev eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin prettier`. This doesn't yet set up config files for either one. Then, for integration: `npm install --save-dev eslint-config-prettier eslint-plugin-prettier eslint-plugin-jest`
 
 Now everything is installed, but mostly still needs to be configured:
 
@@ -65,10 +65,8 @@ Now everything is installed, but mostly still needs to be configured:
 
    ```json
    {
-   "compilerOptions": {
-   }
-   "exclude": ["node_modules", "build"],
-   "include": ["src"]
+     "exclude": ["node_modules", "build"],
+     "include": ["src"]
    }
    ```
 
@@ -100,8 +98,30 @@ Now everything is installed, but mostly still needs to be configured:
    };
    ```
 
-4. TODO: configure eslint!
-5. Lots of scripts could use configuration in `package.json`. Some of this is really about configuration of tools described elsewhere, but it seemed valuable to wrap up in one place. To make it easier to run the scripts, we ran [`npm install npm-run-all --save-dev`](https://www.npmjs.com/package/npm-run-all), but this could be replaced with, e.g., `npm run script1 && npm run script 2 && ...`. Much of this section is based on the [`react-svg`](https://github.com/tanem/react-svg) project as a working example.
+4. [eslint config](https://eslint.org/docs/user-guide/configuring/): `eslint` can produce a config file with `eslint --init` (`npx eslint --init`, without `eslint` installed globally). Among other things, we selected support for TypeScript, which installed `@typescript-eslint/eslint-plugin` and `@typescript-eslint/parser`. To the resulting file, we added:
+
+   ```json
+   {
+     "root": true, // do not look in parent folders for further configuration
+     ...,
+     // jest extend/plugin is to make eslint aware of jest rules and definitions.
+     "extends": [..., "plugin:jest/style", "prettier"],
+     "plugins": [..., "jest", "prettier"],
+     // Avoid enforcing import syntax on config files:
+     "overrides": [
+       {
+         "files": ["*.js"],
+         "rules": {
+           "@typescript-eslint/no-var-requires": "off"
+         }
+       }
+     ]
+   }
+   ```
+
+   Note: `eslint` needs to know to use the `jest` environment. That can be done via adding another `.eslintrc.json` file in the `tests` folder, by using `overrides` with appropriate path patterns, or as we're doing by specifying `/* eslint-env jest */` at the top of the test file.
+
+5. Lots of scripts could use configuration in `package.json`. Some of this is really about configuration of tools described elsewhere, but it seemed valuable to wrap up in one place. To make it easier to run the scripts, we ran `npm install npm-run-all del-cli--save-dev` (for [`run-all`](https://www.npmjs.com/package/npm-run-all) and [`del-cli`])(https://www.npmjs.com/package/del-cli)), but this could be replaced by tweaks like `npm run script1 && npm run script 2 && ...` for `run-all`. Much of this section is based on the [`react-svg`](https://github.com/tanem/react-svg) project as a working example.
    ```json
    {
      "scripts": {
