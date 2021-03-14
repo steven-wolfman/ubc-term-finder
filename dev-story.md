@@ -99,25 +99,36 @@ Now everything is installed, but mostly still needs to be configured:
     ```
     (`import` syntax is not usable in this file; so, we used `require`. Below, we exclude `*.js` files from `eslint` checks for use of `import`.)
 
-4. [eslint config](https://eslint.org/docs/user-guide/configuring/): `eslint` can produce a config file with `npx eslint --init`. Among other things, we selected support for TypeScript, which installed `@typescript-eslint/eslint-plugin` and `@typescript-eslint/parser`. To the resulting file, we added:
-    ```json
-    {
-      "root": true, // do not look in parent folders for further configuration
-      // jest extend/plugin is to make eslint aware of jest rules and definitions.
-      "extends": ["plugin:jest/style", "prettier"], // and any other extensions already here
-      "plugins": ["jest", "prettier"], // and any other plugins already here
-      // Avoid enforcing import syntax on config files:
-      "overrides": [
+4. [eslint config](https://eslint.org/docs/user-guide/configuring/): `eslint` can produce a config file with `npx eslint --init`. Among other things, we selected support for TypeScript, which installed `@typescript-eslint/eslint-plugin` and `@typescript-eslint/parser`. We initially used `json` format for the file, but to handle `jest` files, we switched to `javascript` format so we could import and rely on the matching pattern for tests used by `jest`. The resulting file looks like:
+    ```javascript
+    // Import the jest test matching pattern from local jest.config.js file.
+    const { testMatch: jestTestMatch } = require("./jest.config");
+
+    module.exports = {
+      // Skipping all the pieces not changed from the default!
+
+      root: true, // do not look in parent folders for further configuration
+      extends: [..., "prettier"], // add prettier to the extends list
+      plugins: [..., "prettier"], // add prettier to the plugins list
+      overrides: [
+        // Avoid enforcing import syntax on config files:
         {
-          "files": ["*.js"],
-          "rules": {
-            "@typescript-eslint/no-var-requires": "off"
-          }
-        }
-      ]
-    }
+          files: ["*.js"],
+          rules: {
+            "@typescript-eslint/no-var-requires": "off",
+          },
+        },
+        // For only those files matched by jest, set up the jest testing environment/rules/plugins.
+        {
+          files: jestTestMatch,
+          env: { jest: true },
+          extends: ["plugin:jest/style"],
+          plugins: ["jest"],
+        },
+      ],
+    };
     ```
-    Note: `eslint` needs to know to use the `jest` environment. That can be done via adding another `.eslintrc.json` file in the `tests` folder, by using `overrides` with appropriate path patterns, or as we're doing by specifying `/* eslint-env jest */` at the top of the test file.
+    We think the `overrides` rule above does a good job informing `eslint` about the `jest` environment (so you don't get `'describe' is not defined` style errors) and `jest`-specific rules. Alternatively, you can add another `.eslintrc.js` file in the `tests` folder or specify `/* eslint-env jest */` at the top of each test file (though in that case, you'll still want the `extends`/`plugins` options specific to `jest`).
 
 5. Lots of scripts need to be configured in `package.json` (and we haven't even gotten to [publishing scripts](https://docs.npmjs.com/cli/v7/using-npm/scripts#life-cycle-scripts)!). Some of this is really about configuration of tools described elsewhere, but it seemed valuable to wrap up in one place. To make it easier to run the scripts, we ran `npm install npm-run-all del-cli--save-dev` (for [`run-all`](https://www.npmjs.com/package/npm-run-all) and [`del-cli`](https://www.npmjs.com/package/del-cli)), but this could be replaced by tweaks like `npm run script1 && npm run script 2 && ...` for `run-all`. Much of this section is based on the [`react-svg`](https://github.com/tanem/react-svg) project as a working example.
     ```json
