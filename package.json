@@ -8,7 +8,8 @@
     "build"
   ],
   "scripts": {
-    "build": "run-s clean compile",
+    "prebuild": "npm run clean",
+    "build": "npm run compile",
     "test": "run-s check:* lint build test:*",
     "compile": "tsc",
     "clean": "run-p clean:*",
