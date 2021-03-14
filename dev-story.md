@@ -166,4 +166,4 @@ No idea. Should we have used one of the ["typescript base configs"](https://www.
 
 ## Should we spin off some of the `jest` config into a tutorial?
 
-Both our handling of `testMatch` in `jest.config.js` and using it in `.eslintrc.js` does not seem to be widely documented. If this is a good solution, it might be worth sharing around.
+Both our handling of `testMatch` in `jest.config.js` and using it in `.eslintrc.js` does not seem to be widely documented. If this is a good solution, it might be worth sharing around. Maybe just answer <https://stackoverflow.com/questions/31629389/how-to-use-eslint-with-jest>.
