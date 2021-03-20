@@ -73,7 +73,7 @@ Now everything is installed, but mostly still needs to be configured:
     ```
 
     Separately, `package.json` needs some configuration both for our directory structure and for `typescript` specifically. Added these attributes to `package.json`:
-    ```json
+    ```js
     {
       "main": "build/index.js", // tsconfig.json is set up to put build files into the build directory
       "typings": "build/index.d.ts", // index.js is plain JS, but tsc puts type info here
