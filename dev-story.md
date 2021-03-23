@@ -99,7 +99,6 @@ Now everything is installed, but mostly still needs to be configured:
      preset: "ts-jest",
      testEnvironment: "node",
      testMatch: [...defaults.testMatch, "./tests/**/?*(*.)+[jt]s?(x)"],
-     moduleDirectories: [...defaults.moduleDirectories, "src"], // TODO: tentatively added to find modules in src
    };
    ```
 
