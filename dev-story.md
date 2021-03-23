@@ -155,7 +155,10 @@ Now everything is installed, but mostly still needs to be configured:
 ## Development
 
 ### Basic Stubing and Testing
-Je suis ennuyé
+
+We'll start development by stubbing out our primary function `getUbcTerm`[^acronymCamelCase] and setting up some tests for it. As usual, we'll overengineer this little package to learn as much as we can!
+
+[^acronymCamelCase]: BTW, why name it `getUbcTerm` rather than `getUBCTerm`. Acronyms and abbreviations are a mess for camelCase naming conventions (or conventions that distinguish constants using UPPERCASE). This [https://stackoverflow.com/questions/15526107/acronyms-in-camelcase](closed StackOverflow post) gives some suggestions regarding camelCase naming with acronyms (fine, [https://wwwnc.cdc.gov/eid/page/abbreviations-acronyms-initialisms#:~:text=An%20abbreviation%20is%20a%20truncated,DNA%2C%20RT%2DPCR).](initialism or whatever)). We settled on wanting retain the advantages of camelCase vs. the dignity of an all-caps UBC. 
 
 # Unexplained Oddities and Unresolved Thoughts
 
