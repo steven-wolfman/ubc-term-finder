@@ -146,18 +146,18 @@ Now everything is installed, but mostly still needs to be configured:
        "test": "run-s check:* lint build test:*",
        "compile": "tsc",
        "clean": "run-p clean:*",
-       "check:format": "prettier --list-different \"**/*.{js,ts,tsx}\"",
+       "check:format": "prettier --ignore-path .gitignore --list-different \"**/*.{js,ts,tsx}\"",
        "check:types": "tsc --noEmit",
        "clean:compiled": "del compiled",
        "clean:coverage": "del coverage",
        "clean:build": "del build",
-       "format": "prettier --write \"**/*.{js,ts,tsx}\"",
+       "format": "prettier --ignore-path .gitignore --write \"**/*.{js,ts,tsx}\"",
        "lint": "eslint .",
        "test:plain": "jest"
      }
    }
    ```
-   In order, this sets up a build script (which takes advantage of the fact that we can create `pre<whatever>`/`post<whatever>` scripts for any script to first `clean` and then `compile`), a test script (running several scripts in sequence via `run-s` using globbing (`*`) to run all the various cleaning/testing scripts), a compile script (that just runs typescript, which is already configured via `tsconfig.json` to understand where to look for source and to place output), and to clean up (running all the cleanup scripts in parallel, which themselves just delete working folders). Format checking uses `prettier` to find if it would complain about any Typescript (or Java or Typescript/JSX) files. Typechecking runs `tsc` but doesn't produce output. Linting simply runs `eslint` (which needs to be separately configured). Testing runs `jest` (which needs to be separately configured). Note that `react-svg` takes advantage of specifying a config file to `jest` in order to have many flavors of testing. We may want to do that with `jest` or with another command.
+   In order, this sets up a build script (which takes advantage of the fact that we can create `pre<whatever>`/`post<whatever>` scripts for any script to first `clean` and then `compile`), a test script (running several scripts in sequence via `run-s` using globbing (`*`) to run all the various cleaning/testing scripts), a compile script (that just runs typescript, which is already configured via `tsconfig.json` to understand where to look for source and to place output), and to clean up (running all the cleanup scripts in parallel, which themselves just delete working folders). Format checking uses `prettier` to find if it would complain about any Typescript (or Java or Typescript/JSX) files, and uses a command-line argument to ignore anything in the `.gitignore` file (but [in future it may be better to include the `.gitignore` in the `.prettierignore`](https://github.com/prettier/prettier/issues/8506)). Typechecking runs `tsc` but doesn't produce output. Linting simply runs `eslint` (which needs to be separately configured). Testing runs `jest` (which needs to be separately configured). Note that `react-svg` takes advantage of specifying a config file to `jest` in order to have many flavors of testing. We may want to do that with `jest` or with another command.
 
 ## Development
 
