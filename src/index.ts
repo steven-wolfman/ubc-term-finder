@@ -1,7 +1,7 @@
 /**
  * A full term specification for UBC: the academic (not necessarily calendar) year, the session, and the term.
  *
- * Only terms starting January of the year 1000 are supported. UBC was totally not open before then.
+ * Only terms starting May of the year 1000 are supported. UBC was totally not open before then.
  */
 export interface UbcTerm {
   /**
@@ -30,7 +30,7 @@ export interface UbcTerm {
  * Known issue: Relies purely on the month in whatever
  * local timezone it is run on, which will incorrectly
  *
- * @param {Date} [date=now (new Date())] date for which to check the term.
+ * @param {Date} [date=now (new Date())] date for which to check the term. Must be a date corresponding to UBC term 1000S1 or after.
  * @returns {Date} the term of the provided date.
  */
 export default function getUbcTerm(date: Date = new Date()): UbcTerm {
