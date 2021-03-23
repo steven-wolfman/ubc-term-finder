@@ -33,6 +33,6 @@ export interface UbcTerm {
  * @param {Date} [date=now (new Date())] date for which to check the term. Must be a date corresponding to UBC term 1000S1 or after.
  * @returns {Date} the term of the provided date.
  */
-export default function getUbcTerm(date: Date = new Date()): UbcTerm {
+export function getUbcTerm(date: Date = new Date()): UbcTerm {
   return { year: 1999, session: "W", termNum: 1 };
 }
