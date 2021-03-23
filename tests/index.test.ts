@@ -1,4 +1,4 @@
-import * as UbcTerm from "/index";
+import * as UbcTerm from "../src/index";
 
 describe("this bogus testing unit", () => {
   test("to pass automatically", () => {
