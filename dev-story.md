@@ -167,6 +167,8 @@ We'll start development by stubbing out our primary function `getUbcTerm`[^acron
 
 [^acronymcamelcase]: BTW, why name it `getUbcTerm` rather than `getUBCTerm`. Acronyms and abbreviations are a mess for camelCase naming conventions (or conventions that distinguish constants using UPPERCASE). This [https://stackoverflow.com/questions/15526107/acronyms-in-camelcase](closed StackOverflow post) gives some suggestions regarding camelCase naming with acronyms (fine, [https://wwwnc.cdc.gov/eid/page/abbreviations-acronyms-initialisms#:~:text=An%20abbreviation%20is%20a%20truncated,DNA%2C%20RT%2DPCR).](initialism or whatever)). We settled on wanting retain the advantages of camelCase vs. the dignity of an all-caps UBC.
 
+Stubbing out the function requires learning some basic TypeScript, but since we assume our readers know JavaScript, the [https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html](official TypeScript for JS Programmers) intro is probably sufficient. We use an interface to define our return type and then lay out the full type for `getUbcTerm`.
+
 # Unexplained Oddities and Unresolved Thoughts
 
 ## RESOLVED: Why does `babel` still show in `package-lock.json`?
