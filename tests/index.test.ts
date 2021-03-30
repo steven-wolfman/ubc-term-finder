@@ -1,6 +1,15 @@
 import * as module from "../src/index";
 
 describe("the getUbcTerm function", () => {
+  test("should be running in America/Vancouver timezone for testing", () => {
+    // As of current commit, this is set up in package.json
+    // as a bash environment variable (TZ) prior to running tests.
+    expect(process.env.TZ).toEqual("America/Vancouver");
+
+    // It's tempting to set this within the tests, but see:
+    // https://github.com/facebook/jest/issues/9856 for why not.
+    // Short version: jest disallows mutation of process.env.
+  });
   test("should be accessible in the module", () => {
     expect(module.getUbcTerm).toBeTruthy();
   });
