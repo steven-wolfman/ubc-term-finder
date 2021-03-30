@@ -1,7 +1,7 @@
 /**
  * A full term specification for UBC: the academic (not necessarily calendar) year, the session, and the term.
  *
- * Only terms starting May of the year 1000 are supported. UBC was totally not open before then.
+ * Only terms starting May of the year 1000 (1000S1) are supported. UBC was totally not open before then.
  */
 export interface UbcTerm {
   /**
