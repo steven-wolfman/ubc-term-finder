@@ -102,7 +102,7 @@ Now everything is installed, but mostly still needs to be configured:
    };
    ```
 
-   `import` syntax is not usable in this file; so, we used `require`. Below, we exclude `*.js` files from `eslint` checks for use of `import`. Also, the `ts-jest` preset will make TypeScript test files work (and allow, e.g., ES6 syntax), but if you want to use `*.js` test files, you may need to reconfigure `ts-jest` or use `babel`.  
+   `import` syntax is not usable in this file; so, we used `require`. Below, we exclude `*.js` files from `eslint` checks for use of `import`. Also, the `ts-jest` preset will make TypeScript test files work (and allow, e.g., ES6 syntax), but if you want to use `*.js` test files, you may need to reconfigure `ts-jest` or use `babel`.
 
 3. [eslint config](https://eslint.org/docs/user-guide/configuring/): `eslint` can produce a config file with `npx eslint --init`. Among other things, we selected support for TypeScript, which installed `@typescript-eslint/eslint-plugin` and `@typescript-eslint/parser`. We initially used `json` format for the file, but to handle `jest` files, we switched to `javascript` format so we could import and rely on the matching pattern for tests used by `jest`. The resulting file looks like:
 
@@ -168,6 +168,10 @@ We'll start development by stubbing out our primary function `getUbcTerm`[^acron
 [^acronymcamelcase]: BTW, why name it `getUbcTerm` rather than `getUBCTerm`. Acronyms and abbreviations are a mess for camelCase naming conventions (or conventions that distinguish constants using UPPERCASE). This [https://stackoverflow.com/questions/15526107/acronyms-in-camelcase](closed StackOverflow post) gives some suggestions regarding camelCase naming with acronyms (fine, [https://wwwnc.cdc.gov/eid/page/abbreviations-acronyms-initialisms#:~:text=An%20abbreviation%20is%20a%20truncated,DNA%2C%20RT%2DPCR).](initialism or whatever)). We settled on wanting retain the advantages of camelCase vs. the dignity of an all-caps UBC.
 
 Stubbing out the function requires learning some basic TypeScript, but since we assume our readers know JavaScript, the [https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html](official TypeScript for JS Programmers) intro is probably sufficient. We use an interface to define our return type and then lay out the full type for `getUbcTerm`.
+
+Since this document is focused on the infrastructure and not the _content_ of the package, we'll gloss over the specific tests developed. One big complication we ran into is testing against timezones using Javascript's Date object (which will hopefully be replaced by [https://github.com/tc39/proposal-temporal](temporal) soon). Within Jest, it's not doable to set the timezone environment variable on the fly since Jest resists mutation to `process.env`. So, instead we used standard bash syntax for setting environment variables in `package.json` to set `TZ="America/Vancouver"` before the tests run.
+
+Jest's `test.todo` is a great way to document tests you plan to use in the future!
 
 # Unexplained Oddities and Unresolved Thoughts
 
