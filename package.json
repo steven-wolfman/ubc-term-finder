@@ -10,7 +10,7 @@
   "scripts": {
     "prebuild": "npm run clean",
     "build": "npm run compile",
-    "test": "TZ=PST8PDT run-s check:* lint build test:*",
+    "test": "TZ=\"America/Vancouver\" run-s check:* lint build test:*",
     "compile": "tsc",
     "clean": "run-p clean:*",
     "check:format": "prettier --ignore-path .gitignore --list-different \"**/*.{js,ts,tsx}\"",
