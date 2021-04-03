@@ -171,9 +171,20 @@ There are several popular CI platforms including: [Travis CI](https://travis-ci.
 
 Some quick searching around suggested not many meaningful differences between the available options at our scale, and especially because we're happy to suffer a bit of pain configuring in the name of Learning!! Since we're already using GitHub, we'll work with GitHub Actions.
 
-GitHub Actions (and the other tools) essentially allows you to hook an event relevant to the software development pipeline to a script and then take action based on the script's results such as accepting/rejecting a pull request, just flagging that success/failure for manual review, logging results, and notifying stakeholders of the process. Configuration is via a [YAML](https://en.wikipedia.org/wiki/YAML) file that specifies the event and its triggered workflow (script with embedded actions/commands).[^yaml]
+GitHub Actions (and the other tools) essentially allows you to hook an event relevant to the software development pipeline to a script and then take action based on the script's results. We will likely focus on pull requests as our triggering event, but other possibilities include other common git actions, manual triggers, or scheduled events (via cron syntax). Actions might include accepting/rejecting a pull request, just flagging that success/failure for manual review, logging results, and notifying stakeholders of the process. Configuration is via a [YAML](https://en.wikipedia.org/wiki/YAML) file that specifies the event and its triggered workflow (script with embedded actions/commands).[^yaml]
 
 [^yaml]: YAML is essentially a configuration file language, which is surprising since the obvious acronym expansion if you've seen "YA*" and "*ML" acronyms before is "Yet Another Markup Language". Per its Wikipedia page, that is what the acronym originally meant, but since a configuration file isn't a markup file, they backronymed it to "YAML Ain't Markup Language". Go figure!
+
+### GitHub Actions Starter Workflows
+
+GitHub Actions has various starter workflows that you see when you click the Actions button on a repo for the first time. You can also see this in the [repo backing that page](https://github.com/actions/starter-workflows). (The YAML files are in the direct subdirectories and their descriptions in the properties directory beneath that subdirectory.) Many of the `npm` based starter workflows use [`npm ci`](https://docs.npmjs.com/cli/v7/commands/npm-ci) which is a variant of `npm install` specifically for testing/CI contexts.
+
+Here are a few starter workflows of interest to us:
+
+- [Publishing an npm package on release](https://github.com/actions/starter-workflows/blob/804289e1b5bf70f30e27dfe2c8c691c8cddd384a/ci/npm-publish.yml): This tests the project (via `npm test`), publishes to the npm repository, and publishes to the GitHub Packages repository. It also demonstrates how to use [environment variables](https://docs.github.com/en/actions/reference/environment-variables) and [contexts](https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions) including specifically accessing GitHub secrets (TODO: configure secrets) like the npm authorization token, how to configure dependencies among jobs (where both the publishing jobs depend on the testing job, but can themselves run in parallel), and TODO: the `$registry-url(npm)` syntax?? TODO: Not sure what a "release" counts as.
+- [Testing across node versions](https://github.com/actions/starter-workflows/blob/804289e1b5bf70f30e27dfe2c8c691c8cddd384a/ci/node.js.yml): Uses a matrix to handle a factorial testing strategy (in this case, just different versions of Node but presumably could be multiple factors? TODO). TODO: clearer discussion of matrix and discuss the `$default-branch` syntax.
+- [Sample of a manually triggered workflow](https://github.com/actions/starter-workflows/blob/804289e1b5bf70f30e27dfe2c8c691c8cddd384a/automation/manual.yml): Demonstrates how to set up a workflow that triggers manually via a UI or an API call. Among other things, includes shows how these commands can accept parameters.
+- TODO: https://github.com/actions/starter-workflows/blob/804289e1b5bf70f30e27dfe2c8c691c8cddd384a/automation/greetings.yml
 
 ### Questions about CI
 
