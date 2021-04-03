@@ -1,0 +1,61 @@
+{
+  "name": "ubc-term-finder",
+  "version": "1.0.0",
+  "description": "Fnd the UBC year/session/term codes given a date.",
+  "main": "build/index.js",
+  "typings": "build/index.d.ts",
+  "files": [
+    "build"
+  ],
+  "scripts": {
+    "prebuild": "npm run clean",
+    "build": "npm run compile",
+    "test": "run-s check:* lint build test:*",
+    "compile": "tsc",
+    "clean": "run-p clean:*",
+    "check:format": "prettier --list-different \"**/*.{js,ts,tsx}\"",
+    "check:types": "tsc --noEmit",
+    "clean:compiled": "del compiled",
+    "clean:coverage": "del coverage",
+    "clean:build": "del build",
+    "format": "prettier --write \"**/*.{js,ts,tsx}\"",
+    "lint": "eslint .",
+    "test:plain": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/steven-wolfman/ubc-term-finder.git"
+  },
+  "keywords": [
+    "ubc",
+    "date",
+    "session",
+    "term"
+  ],
+  "author": "Steven Wolfman <wolf@mail.ubc.ca> (https://www.cs.ubc.ca/~wolf/)",
+  "contributors": [
+    "Piam Kiarostami"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/steven-wolfman/ubc-term-finder/issues"
+  },
+  "homepage": "https://github.com/steven-wolfman/ubc-term-finder#readme",
+  "devDependencies": {
+    "@types/jest": "^26.0.20",
+    "@typescript-eslint/eslint-plugin": "^4.17.0",
+    "@typescript-eslint/parser": "^4.17.0",
+    "eslint": "^7.21.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-jest": "^24.2.1",
+    "eslint-plugin-prettier": "^3.3.1",
+    "jest": "^26.6.3",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.2.1",
+    "ts-jest": "^26.5.3",
+    "typescript": "^4.2.3"
+  },
+  "dependencies": {
+    "del-cli": "^3.0.1"
+  }
+}
