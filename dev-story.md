@@ -175,7 +175,7 @@ GitHub Actions (and the other tools) essentially allows you to hook an event rel
 
 [^yaml]: YAML is essentially a configuration file language, which is surprising since the obvious acronym expansion if you've seen "YA*" and "*ML" acronyms before is "Yet Another Markup Language". Per its Wikipedia page, that is what the acronym originally meant, but since a configuration file isn't a markup file, they backronymed it to "YAML Ain't Markup Language". Go figure!
 
-For a quick start, check out the [GitHub Actions cheat sheet](https://github.github.io/actions-cheat-sheet/actions-cheat-sheet.html).
+For a quick start, check out the [GitHub Actions cheat sheet](https://github.github.io/actions-cheat-sheet/actions-cheat-sheet.html). For details, check out the [GitHub Actions reference](https://docs.github.com/en/actions/reference), but be aware that syntax like `on.<push|pull_request>.<branches|tags>` means "in the `on:` section (i.e., the value associated with the `on` key) of your YAML document, in the `push` or `pull` subsection, the `branches` or `tags` subsubsection" and `jobs.<job_id>.name` means "in the `jobs:` section, in the subsection with the particular name to replace _job_id_ that you chose, the `name:` subsubsection".
 
 ### GitHub Actions Starter Workflows
 
