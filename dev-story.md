@@ -190,6 +190,21 @@ Here are a few starter workflows of interest to us:
 
 Note: I've started a [discussion in the GitHub docs to try to understand the "macro" syntax above](https://github.com/github/docs/discussions/5071) like `$default-branch` and `$registry-url`.
 
+### Setting Up the Workflow File
+
+GitHub Actions looks for your workflows in `.github/workflows` for `.yml` and `.yaml` files. We want to create a workflow that runs on pushes and pull requests to the `main` branch:
+
+```yaml
+name: Continuous Integration (for push/PR to main)
+on:
+  push:
+    branches: [$default-branch]
+  pull-request:
+    branches: [$default-branch]
+```
+
+TODO: add jobs!
+
 ### Questions about CI
 
 A tenet of CI appears to be [frequent commits to the main code branch](https://en.wikipedia.org/wiki/Continuous_integration#Everyone_commits_to_the_baseline_every_day). That makes sense particularly in an agile framework with its emphasis on working software, and yet... I may have at the end of my work period, for example, only a set of tests. When I submit these, they're going to fail. That's just one version of the larger question about partial progress and how it connects with CI.
