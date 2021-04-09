@@ -169,7 +169,11 @@ We'll start development by stubbing out our primary function `getUbcTerm` and se
 
 Stubbing out the function requires learning some basic TypeScript, but since we assume our readers know JavaScript, the [official TypeScript for JS programmers](https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html) intro is probably sufficient. We use an interface to define our return type and then lay out the full type for `getUbcTerm`.
 
-Since this document is focused on the infrastructure and not the _content_ of the package, we'll gloss over the specific tests developed. One big complication we ran into is testing against timezones using Javascript's Date object (which will hopefully be replaced by [https://github.com/tc39/proposal-temporal](temporal) soon). Within Jest, it's not doable to set the timezone environment variable on the fly since Jest resists mutation to `process.env`. So, instead we used standard bash syntax for setting environment variables in `package.json` to set `TZ="America/Vancouver"` before the tests run.
+Since this document is focused on the infrastructure and not the _content_ of the package, we'll gloss over the specific tests developed.
+
+One big complication we ran into is testing against timezones using Javascript's Date object (which will hopefully be replaced by [https://github.com/tc39/proposal-temporal](temporal) soon). Within Jest, it's not doable to set the timezone environment variable on the fly since Jest resists mutation to `process.env`. So, instead we used standard bash syntax for setting environment variables in `package.json` to set `TZ="America/Vancouver"` before the tests run.
+
+Time is so complicated that [Jest has specific support for working with time](https://jestjs.io/docs/timer-mocks). Since we're interested in `Date` and using Jest before version 27, we need to [use "modern" timers](https://jestjs.io/docs/jest-object#jestusefaketimersimplementation-modern--legacy). Using that, we can make "now" whatever we want. Alternatively, we could use jest's [`spyon` function](https://jestjs.io/docs/jest-object#jestspyonobject-methodname) with [`global` and `Date` as the parameters](https://stackoverflow.com/questions/28504545/how-to-mock-a-constructor-like-new-date/57599680#57599680) in order to mock `Date` and inspect how it's used. The former solution is probably **better**, but since we're trying to learn, we'll use both!
 
 Jest's `test.todo` is a great way to document tests you plan to use in the future!
 
