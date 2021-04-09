@@ -186,7 +186,7 @@ Here are a few starter workflows of interest to us:
 - [Publishing an npm package on release](https://github.com/actions/starter-workflows/blob/main/ci/npm-publish.yml): This tests the project (via `npm test`), publishes to the npm repository, and publishes to the GitHub Packages repository when a [release](https://docs.github.com/en/github/administering-a-repository/managing-releases-in-a-repository) is created. It also demonstrates how to use [environment variables](https://docs.github.com/en/actions/reference/environment-variables) and [contexts](https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions) including specifically accessing GitHub secrets like the npm authorization token and how to configure dependencies among jobs (where both the publishing jobs depend on the testing job, but can themselves run in parallel). **HOWEVER**, note that the `$registry-url` syntax and any other `$...` syntax besides [`${{ ... }}` expression syntax](https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#about-contexts-and-expressions) (or within shell-specific run commands) is available only in special [workflow templates](https://docs.github.com/en/actions/learn-github-actions/sharing-workflows-with-your-organization#using-a-workflow-template-from-your-organization), not in standard workflows. Don't use it! TODO: hey, that a bogus action of some sort seems like a good idea (a pass-through that logs? maybe start with [TypeScript Action template](https://github.com/actions/typescript-action), or just a null action that logs its environment and parameters?).
 - [Testing across node versions](https://github.com/actions/starter-workflows/blob/main/ci/node.js.yml): Uses a [matrix](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstrategymatrix) to generate a factorial testing strategy. (In this case, there's only one factor&mdash;the Node version, one of four to test with&mdash;but you can use multiple factors, in which case each combination of factor values is run as a separate job.) As above, the `$default-branch` syntax is unavailable in standard workflows. Instead, use the name of your default branch, likely `main`.
 - [Sample of a manually triggered workflow](https://github.com/actions/starter-workflows/blob/main/automation/manual.yml): Demonstrates how to set up a workflow that triggers manually via a UI or an API call. Among other things, includes shows how these commands can accept parameters.
-- [Welcome message to new contributors](https://github.com/actions/starter-workflows/blob/main/automation/greetings.yml): Invokes a built-in interaction to greet new participants on their first pull-request or issue.
+- [Welcome message to new contributors](https://github.com/actions/starter-workflows/blob/main/automation/greetings.yml): Invokes a built-in interaction to greet new participants on their first pull request or issue.
 
 ### Setting Up the Workflow File
 
@@ -197,7 +197,7 @@ name: Continuous Integration
 on:
   push:
     branches: [main]
-  pull-request:
+  pull_request:
     branches: [main]
 ```
 
