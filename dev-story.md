@@ -177,7 +177,9 @@ Time is so complicated that [Jest has specific support for working with time](ht
 
 Mocking can be a bit tricky in combination with TypeScript. Fortunately, just telling TypeScript our spy variable was of type `jest.SpyInstance` was enough for it to resolve typing issues.
 
-Jest's `test.todo` and `describe.skip` are great ways to document tests planned (todo) or in progress (skip)! We might also be able to streamline our tests a bit using `describe.each` or `test.each` in order to automatically apply some of our tests to the 12 testing dates we chose.
+Jest's `test.todo` and `describe.skip` are great ways to document tests planned (todo) or in progress (skip)!
+
+Since it's hard to resist test case automation, especially when it optionally uses custom template strings, we're using [`test.each`](https://jestjs.io/docs/api#2-testeachtablename-fn-timeout) to streamline some of our testing across 12 separate dates/times. Both the array-based and template string version let you specify a table of values to test against (in our case with each row including a textual description of the point in the term, the expected UBC Term to return, and the Date to use as the argument to the function). They then give you facilities to construct the test title using the parameters (`printf`-style formatting using `$...` to reference variables) and access the values within the parameterized test (arguments, as a single object in the template string case).
 
 # Unexplained Oddities and Unresolved Thoughts
 

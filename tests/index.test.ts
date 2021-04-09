@@ -26,99 +26,26 @@ describe("the getUbcTerm function", () => {
   test("should be accessible in the module", () => {
     expect(module.getUbcTerm).toBeTruthy();
   });
-  describe("should produce W1", () => {
-    test("at the starting boundary", () => {
-      expect(module.getUbcTerm(W1_START_1000)).toEqual({
-        year: 1000,
-        session: "W",
-        term: 1,
-      });
-    });
-    test("at an internal point", () => {
-      expect(module.getUbcTerm(W1_MID_1999)).toEqual({
-        year: 1999,
-        session: "W",
-        term: 1,
-      });
-    });
-    test("at the ending boundary", () => {
-      expect(module.getUbcTerm(W1_END_2020)).toEqual({
-        year: 2020,
-        session: "W",
-        term: 1,
-      });
-    });
-  });
-  describe("should produce W2", () => {
-    test("at the starting boundary", () => {
-      expect(module.getUbcTerm(W2_START_1000)).toEqual({
-        year: 1000,
-        session: "W",
-        term: 2,
-      });
-    });
-    test("at an internal point", () => {
-      expect(module.getUbcTerm(W2_MID_1999)).toEqual({
-        year: 1999,
-        session: "W",
-        term: 2,
-      });
-    });
-    test("at the ending boundary", () => {
-      expect(module.getUbcTerm(W2_END_2020)).toEqual({
-        year: 2020,
-        session: "W",
-        term: 2,
-      });
-    });
-  });
-  describe("should produce S1", () => {
-    test("at the starting boundary", () => {
-      expect(module.getUbcTerm(S1_START_1000)).toEqual({
-        year: 1000,
-        session: "S",
-        term: 1,
-      });
-    });
-    test("at an internal point", () => {
-      expect(module.getUbcTerm(S1_MID_1999)).toEqual({
-        year: 1999,
-        session: "S",
-        term: 1,
-      });
-    });
-    test("at the ending boundary", () => {
-      expect(module.getUbcTerm(S1_END_2020)).toEqual({
-        year: 2020,
-        session: "S",
-        term: 1,
-      });
-    });
-  });
-  describe("should produce S2", () => {
-    test("at the starting boundary", () => {
-      expect(module.getUbcTerm(S2_START_1000)).toEqual({
-        year: 1000,
-        session: "S",
-        term: 2,
-      });
-    });
-    test("at an internal point", () => {
-      expect(module.getUbcTerm(S2_MID_1999)).toEqual({
-        year: 1999,
-        session: "S",
-        term: 2,
-      });
-    });
-    test("at the ending boundary", () => {
-      expect(module.getUbcTerm(S2_END_2020)).toEqual({
-        year: 2020,
-        session: "S",
-        term: 2,
-      });
-    });
-  });
-
+  test.each`
+    point              | ubcterm                                                       | date
+    ${"at the start"}  | ${{ year: 1000, session: "W", termNum: 1 } as module.UbcTerm} | ${W1_START_1000}
+    ${"in the middle"} | ${{ year: 1999, session: "W", termNum: 1 } as module.UbcTerm} | ${W1_MID_1999}
+    ${"at the end"}    | ${{ year: 2020, session: "W", termNum: 1 } as module.UbcTerm} | ${W1_END_2020}
+    ${"at the start"}  | ${{ year: 1000, session: "W", termNum: 2 } as module.UbcTerm} | ${W2_START_1000}
+    ${"in the middle"} | ${{ year: 1999, session: "W", termNum: 2 } as module.UbcTerm} | ${W2_MID_1999}
+    ${"at the end"}    | ${{ year: 2020, session: "W", termNum: 2 } as module.UbcTerm} | ${W2_END_2020}
+    ${"at the start"}  | ${{ year: 1000, session: "S", termNum: 1 } as module.UbcTerm} | ${S1_START_1000}
+    ${"in the middle"} | ${{ year: 1999, session: "S", termNum: 1 } as module.UbcTerm} | ${S1_MID_1999}
+    ${"at the end"}    | ${{ year: 2020, session: "S", termNum: 1 } as module.UbcTerm} | ${S1_END_2020}
+    ${"at the start"}  | ${{ year: 1000, session: "S", termNum: 2 } as module.UbcTerm} | ${S2_START_1000}
+    ${"in the middle"} | ${{ year: 1999, session: "S", termNum: 2 } as module.UbcTerm} | ${S2_MID_1999}
+    ${"at the end"}    | ${{ year: 2020, session: "S", termNum: 2 } as module.UbcTerm} | ${S2_END_2020}
+  `(
+    "should produce $ubcterm.session$ubcterm.termNum $point ($date)",
+    ({ ubcterm, date }) => {
+      expect(module.getUbcTerm(date)).toEqual(ubcterm);
+    }
+  );
   describe("should use the current time by default", () => {
     describe("tested via mocking, which is probably inferior to using jest.setSystemTime", () => {
       let dateSpy: jest.SpyInstance;
@@ -138,40 +65,29 @@ describe("the getUbcTerm function", () => {
         expect(result).toEqual(module.getUbcTerm(date));
       });
 
-      test("producing the appropriate term", () => {
-        dateSpy.mockImplementationOnce(() => {
-          return W1_MID_1999;
-        });
-        expect(module.getUbcTerm()).toEqual({
-          year: 1999,
-          session: "W",
-          term: 1,
-        });
-        dateSpy.mockImplementationOnce(() => {
-          return W2_MID_1999;
-        });
-        expect(module.getUbcTerm()).toEqual({
-          year: 1999,
-          session: "W",
-          term: 2,
-        });
-        dateSpy.mockImplementationOnce(() => {
-          return S1_MID_1999;
-        });
-        expect(module.getUbcTerm()).toEqual({
-          year: 1999,
-          session: "S",
-          term: 1,
-        });
-        dateSpy.mockImplementationOnce(() => {
-          return S2_MID_1999;
-        });
-        expect(module.getUbcTerm()).toEqual({
-          year: 1999,
-          session: "S",
-          term: 2,
-        });
-      });
+      test.each`
+        point              | ubcterm                                                       | date
+        ${"at the start"}  | ${{ year: 1000, session: "W", termNum: 1 } as module.UbcTerm} | ${W1_START_1000}
+        ${"in the middle"} | ${{ year: 1999, session: "W", termNum: 1 } as module.UbcTerm} | ${W1_MID_1999}
+        ${"at the end"}    | ${{ year: 2020, session: "W", termNum: 1 } as module.UbcTerm} | ${W1_END_2020}
+        ${"at the start"}  | ${{ year: 1000, session: "W", termNum: 2 } as module.UbcTerm} | ${W2_START_1000}
+        ${"in the middle"} | ${{ year: 1999, session: "W", termNum: 2 } as module.UbcTerm} | ${W2_MID_1999}
+        ${"at the end"}    | ${{ year: 2020, session: "W", termNum: 2 } as module.UbcTerm} | ${W2_END_2020}
+        ${"at the start"}  | ${{ year: 1000, session: "S", termNum: 1 } as module.UbcTerm} | ${S1_START_1000}
+        ${"in the middle"} | ${{ year: 1999, session: "S", termNum: 1 } as module.UbcTerm} | ${S1_MID_1999}
+        ${"at the end"}    | ${{ year: 2020, session: "S", termNum: 1 } as module.UbcTerm} | ${S1_END_2020}
+        ${"at the start"}  | ${{ year: 1000, session: "S", termNum: 2 } as module.UbcTerm} | ${S2_START_1000}
+        ${"in the middle"} | ${{ year: 1999, session: "S", termNum: 2 } as module.UbcTerm} | ${S2_MID_1999}
+        ${"at the end"}    | ${{ year: 2020, session: "S", termNum: 2 } as module.UbcTerm} | ${S2_END_2020}
+      `(
+        "producing the appropriate term: $ubcterm.session$ubcterm.termNum $point ($date)",
+        ({ ubcterm, date }) => {
+          dateSpy.mockImplementation(() => {
+            return date;
+          });
+          expect(module.getUbcTerm()).toEqual(ubcterm);
+        }
+      );
       describe.skip("tested via jest.useFakeTimers/jest.setSystemTime", () => {
         // TODO
       });
