@@ -179,7 +179,7 @@ For a quick start, check out the [GitHub Actions cheat sheet](https://github.git
 
 #### GitHub Actions Starter Workflows
 
-GitHub Actions has various starter workflows that you see when you click the Actions button on a repo for the first time. You can also see this in the [repo backing that page](https://github.com/actions/starter-workflows). (The YAML files are in the direct subdirectories and their descriptions in the properties directory beneath that subdirectory.) Many of the `npm` based starter workflows use [`npm ci`](https://docs.npmjs.com/cli/v7/commands/npm-ci) which is short for `npm clean-install` (not continuous integration!).
+GitHub Actions has various starter workflows that you see when you click the Actions button on a repo for the first time or when you click the `New workflow` button later. You can also see this in the [repo backing that page](https://github.com/actions/starter-workflows). (The YAML files are in the direct subdirectories and their descriptions in the properties directory beneath that subdirectory.) Many of the `npm` based starter workflows use [`npm ci`](https://docs.npmjs.com/cli/v7/commands/npm-ci) which is short for `npm clean-install` (not continuous integration!).
 
 Here are a few starter workflows of interest to us:
 
