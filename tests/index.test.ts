@@ -1,5 +1,4 @@
 import * as module from "../src/index";
-import { strict as assert } from "assert";
 
 const W1_START_1000 = new Date(1000, 8, 1); // Sep 1, 1000
 const W1_MID_1999 = new Date(1999, 10, 14, 11, 14, 53, 496); // Sometime on Nov 14, 1999
@@ -126,12 +125,15 @@ describe("the getUbcTerm function", () => {
       beforeEach(() => {
         dateSpy = jest.spyOn(global, "Date");
       });
-      test("including calling 'new Date()' when called with no arguments", () => {
+      test("including using the result of 'new Date()' when called with no arguments", () => {
         const result = module.getUbcTerm();
-        expect(dateSpy).toHaveBeenCalledTimes(1);
-        assert(dateSpy.mock.results.length > 0);
-        expect(dateSpy.mock.results[0].type).toEqual("return");
 
+        // new Date() should be called exactly once, with no arguments:
+        expect(dateSpy).toHaveBeenCalledTimes(1);
+        expect(dateSpy).toHaveBeenCalledWith();
+        expect(dateSpy).toHaveReturned();
+
+        // And the end result is the same as getUbcTerm with the explicit date
         const date = dateSpy.mock.results[0].value;
         expect(result).toEqual(module.getUbcTerm(date));
       });
