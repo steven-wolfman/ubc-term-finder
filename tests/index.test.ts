@@ -27,19 +27,19 @@ describe("the getUbcTerm function", () => {
     expect(module.getUbcTerm).toBeTruthy();
   });
   test.each`
-    point              | ubcterm                                                       | date
-    ${"at the start"}  | ${{ year: 1000, session: "W", termNum: 1 } as module.UbcTerm} | ${W1_START_1000}
-    ${"in the middle"} | ${{ year: 1999, session: "W", termNum: 1 } as module.UbcTerm} | ${W1_MID_1999}
-    ${"at the end"}    | ${{ year: 2020, session: "W", termNum: 1 } as module.UbcTerm} | ${W1_END_2020}
-    ${"at the start"}  | ${{ year: 1000, session: "W", termNum: 2 } as module.UbcTerm} | ${W2_START_1000}
-    ${"in the middle"} | ${{ year: 1999, session: "W", termNum: 2 } as module.UbcTerm} | ${W2_MID_1999}
-    ${"at the end"}    | ${{ year: 2020, session: "W", termNum: 2 } as module.UbcTerm} | ${W2_END_2020}
-    ${"at the start"}  | ${{ year: 1000, session: "S", termNum: 1 } as module.UbcTerm} | ${S1_START_1000}
-    ${"in the middle"} | ${{ year: 1999, session: "S", termNum: 1 } as module.UbcTerm} | ${S1_MID_1999}
-    ${"at the end"}    | ${{ year: 2020, session: "S", termNum: 1 } as module.UbcTerm} | ${S1_END_2020}
-    ${"at the start"}  | ${{ year: 1000, session: "S", termNum: 2 } as module.UbcTerm} | ${S2_START_1000}
-    ${"in the middle"} | ${{ year: 1999, session: "S", termNum: 2 } as module.UbcTerm} | ${S2_MID_1999}
-    ${"at the end"}    | ${{ year: 2020, session: "S", termNum: 2 } as module.UbcTerm} | ${S2_END_2020}
+    point              | ubcterm                                     | date
+    ${"at the start"}  | ${{ year: 1000, session: "W", termNum: 1 }} | ${W1_START_1000}
+    ${"in the middle"} | ${{ year: 1999, session: "W", termNum: 1 }} | ${W1_MID_1999}
+    ${"at the end"}    | ${{ year: 2020, session: "W", termNum: 1 }} | ${W1_END_2020}
+    ${"at the start"}  | ${{ year: 1000, session: "W", termNum: 2 }} | ${W2_START_1000}
+    ${"in the middle"} | ${{ year: 1999, session: "W", termNum: 2 }} | ${W2_MID_1999}
+    ${"at the end"}    | ${{ year: 2020, session: "W", termNum: 2 }} | ${W2_END_2020}
+    ${"at the start"}  | ${{ year: 1000, session: "S", termNum: 1 }} | ${S1_START_1000}
+    ${"in the middle"} | ${{ year: 1999, session: "S", termNum: 1 }} | ${S1_MID_1999}
+    ${"at the end"}    | ${{ year: 2020, session: "S", termNum: 1 }} | ${S1_END_2020}
+    ${"at the start"}  | ${{ year: 1000, session: "S", termNum: 2 }} | ${S2_START_1000}
+    ${"in the middle"} | ${{ year: 1999, session: "S", termNum: 2 }} | ${S2_MID_1999}
+    ${"at the end"}    | ${{ year: 2020, session: "S", termNum: 2 }} | ${S2_END_2020}
   `(
     "should produce $ubcterm.session$ubcterm.termNum $point ($date)",
     ({ ubcterm, date }) => {

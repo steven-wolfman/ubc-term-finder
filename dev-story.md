@@ -165,21 +165,139 @@ Now everything is installed, but mostly still needs to be configured:
 
 We'll start development by stubbing out our primary function `getUbcTerm` and setting up some tests for it. As usual, we'll overengineer this little package to learn as much as we can!
 
-(BTW, why name it `getUbcTerm` rather than `getUBCTerm`. Acronyms and abbreviations are a mess for camelCase naming conventions (or conventions that distinguish constants using UPPERCASE). This [closed StackOverflow post](https://stackoverflow.com/questions/15526107/acronyms-in-camelcase) gives some suggestions regarding camelCase naming with acronyms (fine, [initialism or whatever](https://wwwnc.cdc.gov/eid/page/abbreviations-acronyms-initialisms#:~:text=An%20abbreviation%20is%20a%20truncated,DNA%2C%20RT%2DPCR)). We settled on wanting retain the advantages of camelCase vs. the dignity of an all-caps UBC.)
+(BTW, why name it `getUbcTerm` rather than `getUBCTerm`? Acronyms and abbreviations are a mess for camelCase naming conventions (or conventions that distinguish constants using UPPERCASE). This [closed StackOverflow post](https://stackoverflow.com/questions/15526107/acronyms-in-camelcase) gives some suggestions regarding camelCase naming with acronyms (fine, [initialism or whatever](https://wwwnc.cdc.gov/eid/page/abbreviations-acronyms-initialisms#:~:text=An%20abbreviation%20is%20a%20truncated,DNA%2C%20RT%2DPCR)). We settled on wanting retain the advantages of camelCase vs. the dignity of an all-caps UBC.)
 
-Stubbing out the function requires learning some basic TypeScript, but since we assume our readers know JavaScript, the [official TypeScript for JS programmers](https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html) intro is probably sufficient. We use an interface to define our return type and then lay out the full type for `getUbcTerm`.
+Stubbing out the function requires learning some basic TypeScript, but since we assume our readers know JavaScript, the [official TypeScript for JS programmers](https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html) intro is probably sufficient. We use an interface to define our return type and then lay out the full type for `getUbcTerm`:
 
-Since this document is focused on the infrastructure and not the _content_ of the package, we'll gloss over the specific tests developed.
+```typescript
+export interface UbcTerm {
+  year: number;
+  session: "W" | "S";
+  termNum: 1 | 2;
+}
 
-One big complication we ran into is testing against timezones using Javascript's Date object (which will hopefully be replaced by [https://github.com/tc39/proposal-temporal](temporal) soon). Within Jest, it's not doable to set the timezone environment variable on the fly since Jest resists mutation to `process.env`. So, instead we used standard bash syntax for setting environment variables in `package.json` to set `TZ="America/Vancouver"` before the tests run.
+export function getUbcTerm(date: Date = new Date()): UbcTerm {
+  return { year: 1999, session: "W", termNum: 1 };
+}
+```
 
-Time is so complicated that [Jest has specific support for working with time](https://jestjs.io/docs/timer-mocks). Since we're interested in `Date` and using Jest before version 27, we need to [use "modern" timers](https://jestjs.io/docs/jest-object#jestusefaketimersimplementation-modern--legacy). Using that, we can make "now" whatever we want. Alternatively, we could use jest's [`spyon` function](https://jestjs.io/docs/jest-object#jestspyonobject-methodname) with [`global` and `Date` as the parameters](https://stackoverflow.com/questions/28504545/how-to-mock-a-constructor-like-new-date/57599680#57599680) in order to mock `Date` and inspect how it's used. ([`global`](https://nodejs.org/api/globals.html#globals_global) is a Node.js-specific variable storing an object representing the global scope in the browser.) The former solution is probably **better**, but since we're trying to learn, we'll use both!
+The actual code has plenty of JSDoc comments to give users information about the type and function, which after all is one of the big advantages of TypeScript over plain JavaScript!
+
+#### Jest Tests
+
+We set up our configuration so that Jest test files can be in the `tests` folder under our project root or in [any of the default places](https://jestjs.io/docs/configuration#testmatch-arraystring): under any `__tests__` subfolder or named ending in `.spec.ts`, `.test.ts` or the like (e.g., `.test.jsx` for a [JSX file](https://reactjs.org/docs/introducing-jsx.html)). For now, we're testing in `tests/index.test.ts`, but we might be better off testing locally alongside our source so that imports in the tests don't get complicated.
+
+Jest automatically makes available various utility functions and the [`jest` object](https://reactjs.org/docs/introducing-jsx.html). So, the backbone of our test file is:
+
+```typescript
+import * as module from "../src/index";
+
+describe("the getUbcTerm function", () => {
+  ...
+});
+```
+
+[`describe`](https://jestjs.io/docs/api#describename-fn) lets us group tests logically, which looks good and also allows coordinated setup/teardown using [`beforeAll`](https://jestjs.io/docs/api#beforeallfn-timeout), [`beforeEach`](https://jestjs.io/docs/api#beforeeachfn-timeout), [`afterAll`](https://jestjs.io/docs/api#afterallfn-timeout), and [`afterEach`](https://jestjs.io/docs/api#aftereachfn-timeout). Here, we group all our tests together under the description `the getUbcTerm function`. Then, we supply a [thunk](https://en.wikipedia.org/wiki/Thunk) (zero-argument function) that will run the test suite.
+
+Inside the `describe` block, we have more `describe` blocks and individual `test`s like:
+
+```typescript
+test("should be accessible in the module", () => {
+  expect(module.getUbcTerm).toBeDefined();
+});
+```
+
+Again, this has descriptive text and a thunk. When run, the thunk checks that `module.getUbcTerm` is defined. Each actual assertion in a test is an `expect` chained with one of many available [matchers](https://jestjs.io/docs/expect) like [`toBeDefined`](https://jestjs.io/docs/expect#tobedefined) that inspects the value. The matcher we use most is [`toEqual`](https://jestjs.io/docs/expect#toequalvalue), which performs deep equality checking.
+
+Jest's [`test.todo`](https://jestjs.io/docs/api#testtodoname) is a great way to document planned tests. [`test.skip`](https://jestjs.io/docs/api#describeskipname-fn)/[`describe.skip`](https://jestjs.io/docs/api#describeskipname-fn) are great ways to skip tests in progress. In our case, we use `test.skip` to skip a working but unnecessary test that is included only to demonstrate that [`jest.setSystemTime`](https://jestjs.io/docs/jest-object#jestsetsystemtimenow-number--date) works:
+
+```typescript
+test.skip("demonstrating that fake system timers do not advance", () => {
+  ...
+});
+```
+
+For most of the rest of our testing, we could get away with just this Jest functionality, but since automation is irresistible, especially when it optionally uses custom template strings, we're using [`test.each`](https://jestjs.io/docs/api#2-testeachtablename-fn-timeout) to streamline some of our testing across 12 separate dates/times. Both the array-based and template string versions of Jest's `each` functions let you specify a table of values to test against.
+
+In our case, each table row includes a textual description of the point in the term, the expected UBC Term to return, and the Date to use as the argument to the function). We then use `each`'s `printf`-style formatting with `$...` to reference variables in order to customize the test description text. Finally, we have the very compact test itself that relies on the parameterized arguments. Here's the result, leaving out the last 8 rows of the table for brevity:
+
+```typescript
+test.each`
+  point              | ubcterm                                     | date
+  ${"at the start"}  | ${{ year: 1000, session: "W", termNum: 1 }} | ${W1_START_1000}
+  ${"in the middle"} | ${{ year: 1999, session: "W", termNum: 1 }} | ${W1_MID_1999}
+  ${"at the end"}    | ${{ year: 2020, session: "W", termNum: 1 }} | ${W1_END_2020}
+  ${"at the start"}  | ${{ year: 1000, session: "W", termNum: 2 }} | ${W2_START_1000}
+`(
+  "should produce $ubcterm.session$ubcterm.termNum $point ($date)",
+  ({ ubcterm, date }) => {
+    expect(module.getUbcTerm(date)).toEqual(ubcterm);
+  }
+);
+```
+
+Note that the `${...}` syntax is standard syntax inside a template string to splice in JavaScript.
+
+With the full 12 row table, this represents 12 separate tests expressed compactly. Note: We defined `W1_START_1000` and the other `Date` constants at the top of our file. They are just the result of calling `new Date(...)` with specific dates/times to be tested.
+
+(In our code, we don't need `point` after we're done with the test description text. The template string version of `each` passes the arguments as a single object. So, we can just leave `point` out in our [destructuring parameter syntax](https://jestjs.io/docs/api#describeskipname-fn). If you used the array-based version, you'd need your function to take three parameters but would just ignore the first parameter.)
+
+#### Surprises and Complications
+
+##### Initialization/Teardown/Skip May Not Work as You Think
+
+[`describe.skip`](https://jestjs.io/docs/api#describeskipname-fn) and jest's test running framework as a whole may not work quite as you think. A good way to experiment with this is to replace the start of our overall tests (`describe("the getUbcTerm function",`) with:
+
+```typescript
+describe.skip("the getUbcTerm function", () => {
+  console.log("When does 'bare' code in a describe block run?");
+  beforeAll(() => {
+    console.log("When does 'beforeAll' code run?");
+  });
+  beforeEach(() => {
+    console.log("When does 'beforeEach' code run?");
+  });
+```
+
+Jest still processes skipped `describe` blocks. So, this will print `When does 'bare' code in a describe block run?`. `beforeAll` and `beforeEach` are meant to run setup code before a set of tests run (`All`) or before each test runs individually (`Each`). Thankfully, neither `before` block runs in a skipped block. Jest also tells us the number of tests that were skipped and, depending on what you skip, may give further information about the skipped tests like their text.
+
+It's worth thinking about this if you put initialization or teardown code unprotected by a `before`/`after` block. That code may run at a surprising time and so impact its own and other tests in surprising ways!
+
+You can remove the `.skip` above but leave the logging in to learn a bit more about how `beforeAll`/`beforeEach` work.
+
+##### Timezones Are a Mess
+
+One big complication we ran into is testing against timezones using Javascript's Date object (which will hopefully be replaced by [https://github.com/tc39/proposal-temporal](temporal) soon). Within Jest, it's not doable to set the timezone environment variable on the fly since Jest resists mutation to `process.env`. So, instead we used standard bash syntax for setting environment variables in `package.json` to set `TZ="America/Vancouver"` before the tests run. We put it in our `test` script in the `scripts` section:
+
+```javascript
+"test": "TZ=\"America/Vancouver\" run-s check:* lint build test:*",
+```
+
+##### Time Is a Mess
+
+Time is so complicated that [Jest has specific support for working with time](https://jestjs.io/docs/timer-mocks). Since we're interested in `Date` and using Jest before version 27, we need to [use "modern" timers](https://jestjs.io/docs/jest-object#jestusefaketimersimplementation-modern--legacy). Using that, we can make "now" whatever we want. Alternatively, we could use jest's [`spyon` function](https://jestjs.io/docs/jest-object#jestspyonobject-methodname) with [`global` and `Date` as the parameters](https://stackoverflow.com/questions/28504545/how-to-mock-a-constructor-like-new-date/57599680#57599680) in order to mock `Date` and inspect how it's used. ([`global`](https://nodejs.org/api/globals.html#globals_global) is a Node.js-specific variable storing an object representing the global scope in the browser.) The former solution is probably **better**, but since we're trying to learn, we use both!
 
 Mocking can be a bit tricky in combination with TypeScript. Fortunately, just telling TypeScript our spy variable was of type `jest.SpyInstance` was enough for it to resolve typing issues.
 
-Jest's `test.todo` and `describe.skip` are great ways to document tests planned (todo) or in progress (skip)!
+Here's the setup for our spy-based testing:
 
-Since it's hard to resist test case automation, especially when it optionally uses custom template strings, we're using [`test.each`](https://jestjs.io/docs/api#2-testeachtablename-fn-timeout) to streamline some of our testing across 12 separate dates/times. Both the array-based and template string version let you specify a table of values to test against (in our case with each row including a textual description of the point in the term, the expected UBC Term to return, and the Date to use as the argument to the function). They then give you facilities to construct the test title using the parameters (`printf`-style formatting using `$...` to reference variables) and access the values within the parameterized test (arguments, as a single object in the template string case). Notice that we use [`mockClear`](https://jestjs.io/docs/mock-function-api#mockfnmockclear) between tests to ensure the call count is correct and [`mockRestore`](https://jestjs.io/docs/mock-function-api#mockfnmockrestore) when we're done with a spy so it will behave normally if used in the future.
+```typescript
+describe("tested via mocking, which is probably inferior to using jest.setSystemTime", () => {
+  let dateSpy: jest.SpyInstance;
+  beforeAll(() => {
+    dateSpy = jest.spyOn(global, "Date");
+  });
+  beforeEach(() => {
+    // Reset counters.
+    dateSpy.mockClear();
+  });
+  afterAll(() => {
+    // Return Date to its original functionality.
+    dateSpy.mockRestore();
+  });
+```
+
+We need to access `dateSpy` everywhere inside the `describe` block; so, we make it a local variable in that block. We actually initialize it in `beforeAll` to be confident that the initialization only happens just before the tests are run, and we use [`mockRestore`](https://jestjs.io/docs/mock-function-api#mockfnmockrestore) to restore the original `Date` constructor in the `afterAll` block to avoid messing with other tests. Before each test, we use [`mockClear`](https://jestjs.io/docs/mock-function-api#mockfnmockclear) to reset the record of calls in the spy, in case the test relies on inspecting how or how many times the `Date` constructor was called.
 
 # Unexplained Oddities and Unresolved Thoughts
 
