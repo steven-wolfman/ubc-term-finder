@@ -49,8 +49,16 @@ describe("the getUbcTerm function", () => {
   describe("should use the current time by default", () => {
     describe("tested via mocking, which is probably inferior to using jest.setSystemTime", () => {
       let dateSpy: jest.SpyInstance;
-      beforeEach(() => {
+      beforeAll(() => {
         dateSpy = jest.spyOn(global, "Date");
+      });
+      beforeEach(() => {
+        // Reset counters.
+        dateSpy.mockClear();
+      });
+      afterAll(() => {
+        // Return Date to its original functionality.
+        dateSpy.mockRestore();
       });
       test("including using the result of 'new Date()' when called with no arguments", () => {
         const result = module.getUbcTerm();
@@ -82,13 +90,54 @@ describe("the getUbcTerm function", () => {
       `(
         "producing the appropriate term: $ubcterm.session$ubcterm.termNum $point ($date)",
         ({ ubcterm, date }) => {
-          dateSpy.mockImplementation(() => {
+          dateSpy.mockImplementationOnce(() => {
             return date;
           });
           expect(module.getUbcTerm()).toEqual(ubcterm);
         }
       );
-      test.todo("tested via jest.useFakeTimers/jest.setSystemTime");
+    });
+    describe("tested via jest.useFakeTimers/jest.setSystemTime", () => {
+      test.skip("demonstrating that fake system timers do not advance", () => {
+        // Once we use fake timers, the time stops advancing automatically.
+        // So, this test passes if run as is but fails if run with the
+        // useFakeTimers/setSystemTime line commented out:
+        jest.useFakeTimers("modern").setSystemTime(new Date(1900, 0));
+        const now = new Date();
+
+        // Waste some time.
+        for (let i = 0; i < 1000000; i++) {
+          if (i % 30000 == 0) {
+            expect(i).toBe(i);
+          }
+        }
+
+        expect(new Date()).toEqual(now);
+
+        jest.useRealTimers();
+      });
+      test.each`
+        point              | ubcterm                                                       | date
+        ${"at the start"}  | ${{ year: 1000, session: "W", termNum: 1 } as module.UbcTerm} | ${W1_START_1000}
+        ${"in the middle"} | ${{ year: 1999, session: "W", termNum: 1 } as module.UbcTerm} | ${W1_MID_1999}
+        ${"at the end"}    | ${{ year: 2020, session: "W", termNum: 1 } as module.UbcTerm} | ${W1_END_2020}
+        ${"at the start"}  | ${{ year: 1000, session: "W", termNum: 2 } as module.UbcTerm} | ${W2_START_1000}
+        ${"in the middle"} | ${{ year: 1999, session: "W", termNum: 2 } as module.UbcTerm} | ${W2_MID_1999}
+        ${"at the end"}    | ${{ year: 2020, session: "W", termNum: 2 } as module.UbcTerm} | ${W2_END_2020}
+        ${"at the start"}  | ${{ year: 1000, session: "S", termNum: 1 } as module.UbcTerm} | ${S1_START_1000}
+        ${"in the middle"} | ${{ year: 1999, session: "S", termNum: 1 } as module.UbcTerm} | ${S1_MID_1999}
+        ${"at the end"}    | ${{ year: 2020, session: "S", termNum: 1 } as module.UbcTerm} | ${S1_END_2020}
+        ${"at the start"}  | ${{ year: 1000, session: "S", termNum: 2 } as module.UbcTerm} | ${S2_START_1000}
+        ${"in the middle"} | ${{ year: 1999, session: "S", termNum: 2 } as module.UbcTerm} | ${S2_MID_1999}
+        ${"at the end"}    | ${{ year: 2020, session: "S", termNum: 2 } as module.UbcTerm} | ${S2_END_2020}
+      `(
+        "producing the appropriate term: $ubcterm.session$ubcterm.termNum $point ($date)",
+        ({ ubcterm, date }) => {
+          jest.useFakeTimers("modern").setSystemTime(date);
+          expect(module.getUbcTerm()).toEqual(ubcterm);
+          jest.useRealTimers();
+        }
+      );
     });
   });
 });
