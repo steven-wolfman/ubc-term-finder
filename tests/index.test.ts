@@ -88,9 +88,7 @@ describe("the getUbcTerm function", () => {
           expect(module.getUbcTerm()).toEqual(ubcterm);
         }
       );
-      describe.skip("tested via jest.useFakeTimers/jest.setSystemTime", () => {
-        // TODO
-      });
+      test.todo("tested via jest.useFakeTimers/jest.setSystemTime");
     });
   });
 });
