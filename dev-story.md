@@ -175,7 +175,9 @@ One big complication we ran into is testing against timezones using Javascript's
 
 Time is so complicated that [Jest has specific support for working with time](https://jestjs.io/docs/timer-mocks). Since we're interested in `Date` and using Jest before version 27, we need to [use "modern" timers](https://jestjs.io/docs/jest-object#jestusefaketimersimplementation-modern--legacy). Using that, we can make "now" whatever we want. Alternatively, we could use jest's [`spyon` function](https://jestjs.io/docs/jest-object#jestspyonobject-methodname) with [`global` and `Date` as the parameters](https://stackoverflow.com/questions/28504545/how-to-mock-a-constructor-like-new-date/57599680#57599680) in order to mock `Date` and inspect how it's used. ([`global`](https://nodejs.org/api/globals.html#globals_global) is a Node.js-specific variable storing an object representing the global scope in the browser.) The former solution is probably **better**, but since we're trying to learn, we'll use both!
 
-Jest's `test.todo` is a great way to document tests you plan to use in the future!
+Mocking can be a bit tricky in combination with TypeScript. Fortunately, just telling TypeScript our spy variable was of type `jest.SpyInstance` was enough for it to resolve typing issues.
+
+Jest's `test.todo` and `describe.skip` are great ways to document tests planned (todo) or in progress (skip)! We might also be able to streamline our tests a bit using `describe.each` or `test.each` in order to automatically apply some of our tests to the 12 testing dates we chose.
 
 # Unexplained Oddities and Unresolved Thoughts
 
