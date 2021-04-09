@@ -190,10 +190,10 @@ Here are a few starter workflows of interest to us:
 
 ### Setting Up the Workflow File
 
-GitHub Actions looks for your workflows in `.github/workflows` for `.yml` and `.yaml` files. We want to create a workflow that runs on pushes and pull requests to the `main` branch:
+GitHub Actions looks for your workflows in `.github/workflows` for `.yml` and `.yaml` files. We want to create a workflow that runs on pushes and pull requests to the `main` branch. So, we'll start in our `.github/workflows/ci.yml` file with:
 
 ```yaml
-name: Continuous Integration (for push/PR to main)
+name: Continuous Integration
 on:
   push:
     branches: [main]
@@ -201,7 +201,37 @@ on:
     branches: [main]
 ```
 
-TODO: add jobs!
+Next, we supply the [jobs](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobs) in our workflow. Jobs are run in parallel, but you can create [dependencies as needed](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idneeds). Each job _must_ indicate what platform it [runs on](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on). In our case, we only need one job, which we'll run on Ubuntu Linux:
+
+```yaml
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+```
+
+(Only `on` and `runs-on` (for each job) are required in a workflow.)
+
+A job is made of [steps](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idsteps) that run as individual processes (on the same platform) in sequence. Each step is an element in a YAML list. We want to checkout the repo, set up Node, run a clean install via npm, and run our test script, which not only runs the tests themselves but also checks for style and formatting:
+
+```yaml
+steps:
+  - uses: actions/checkout@v2
+  - uses: actions/setup-node@v2
+    with:
+      node-version: "14.x"
+  - run: npm ci
+  - run: npm test
+```
+
+The syntax looks a bit odd in the second entry of this list. Each list entry is itself a YAML mapping with keys and values. So, the second entry has the key `uses` and the key `with`. The value associated with `with` is itself a mapping with just one key: `node-version`. A [`uses` value](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsuses) in a step calls on a GitHub Action. Best practice is to give a reasonably specific version of the action to use. A [`run` value](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsrun) in a step is a shell command. We could have had a single step to run both commands instead:
+
+```yaml
+run: |
+  npm ci
+  npm test
+```
+
+Our full [`ci.yml` workflow](.github/workflows/ci.yml) is a bit more complex just for fun and is built based on the [Node.js starter workflow template](https://github.com/actions/starter-workflows/blob/main/ci/node.js.yml).
 
 ### Questions about CI
 
