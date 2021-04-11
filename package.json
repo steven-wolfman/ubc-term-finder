@@ -1,6 +1,6 @@
 {
   "name": "ubc-term-finder",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Fnd the UBC year/session/term codes given a date.",
   "main": "build/index.js",
   "typings": "build/index.d.ts",
