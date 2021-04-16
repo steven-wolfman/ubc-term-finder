@@ -209,7 +209,7 @@ test("should be accessible in the module", () => {
 
 Again, this has descriptive text and a thunk. When run, the thunk checks that `module.getUbcTerm` is defined. Each actual assertion in a test is an `expect` chained with one of many available [matchers](https://jestjs.io/docs/expect) like [`toBeDefined`](https://jestjs.io/docs/expect#tobedefined) that inspects the value. The matcher we use most is [`toEqual`](https://jestjs.io/docs/expect#toequalvalue), which performs deep equality checking.
 
-Jest's [`test.todo`](https://jestjs.io/docs/api#testtodoname) is a great way to document planned tests. [`test.skip`](https://jestjs.io/docs/api#describeskipname-fn)/[`describe.skip`](https://jestjs.io/docs/api#describeskipname-fn) are great ways to skip tests in progress. In our case, we use `test.skip` to skip a working but unnecessary test that is included only to demonstrate that [`jest.setSystemTime`](https://jestjs.io/docs/jest-object#jestsetsystemtimenow-number--date) works:
+Jest's [`test.todo`](https://jestjs.io/docs/api#testtodoname) is a great way to document planned tests. [`test.skip`](https://jestjs.io/docs/api#testskipname-fn)/[`describe.skip`](https://jestjs.io/docs/api#describeskipname-fn) are great ways to skip tests in progress. In our case, we use `test.skip` to skip a working but unnecessary test that is included only to demonstrate that [`jest.setSystemTime`](https://jestjs.io/docs/jest-object#jestsetsystemtimenow-number--date) works:
 
 ```typescript
 test.skip("demonstrating that fake system timers do not advance", () => {
