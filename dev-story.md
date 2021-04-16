@@ -267,7 +267,7 @@ You can remove the `.skip` above but leave the logging in to learn a bit more ab
 
 ##### Timezones Are a Mess
 
-One big complication we ran into is testing against timezones using Javascript's Date object (which will hopefully be replaced by [https://github.com/tc39/proposal-temporal](temporal) soon). Within Jest, it's not doable to set the timezone environment variable on the fly since Jest resists mutation to `process.env`. So, instead we used standard bash syntax for setting environment variables in `package.json` to set `TZ="America/Vancouver"` before the tests run. We put it in our `test` script in the `scripts` section:
+One big complication we ran into is testing against timezones using Javascript's Date object (which will hopefully be replaced by [https://github.com/tc39/proposal-temporal](https://github.com/tc39/proposal-temporal) soon). Within Jest, it's not doable to set the timezone environment variable on the fly since Jest resists mutation to `process.env`. So, instead we used standard bash syntax for setting environment variables in `package.json` to set `TZ="America/Vancouver"` before the tests run. We put it in our `test` script in the `scripts` section:
 
 ```javascript
 "test": "TZ=\"America/Vancouver\" run-s check:* lint build test:*",
