@@ -240,7 +240,7 @@ Note that the `${...}` syntax is standard syntax inside a template string to spl
 
 With the full 12 row table, this represents 12 separate tests expressed compactly. Note: We defined `W1_START_1000` and the other `Date` constants at the top of our file. They are just the result of calling `new Date(...)` with specific dates/times to be tested.
 
-(In our code, we don't need `point` after we're done with the test description text. The template string version of `each` passes the arguments as a single object. So, we can just leave `point` out in our [destructuring parameter syntax](https://jestjs.io/docs/api#describeskipname-fn). If you used the array-based version, you'd need your function to take three parameters but would just ignore the first parameter.)
+(In our code, we don't need `point` after we're done with the test description text. The template string version of `each` passes the arguments as a single object. So, we can just leave `point` out in our [destructuring parameter syntax](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#unpacking_fields_from_objects_passed_as_a_function_parameter). If you used the array-based version, you'd need your function to take three parameters but would just ignore the first parameter.)
 
 #### Surprises and Complications
 
