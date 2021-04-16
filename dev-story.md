@@ -168,7 +168,7 @@ Now everything is installed, but mostly still needs to be configured:
 "version": "0.0.1",
 ```
 
-That version format is `MAJOR.MINOR.PATCH`. A patch is a backwards-compatible bug fix. A minor version change is a backwards-compatible functionality change. A major version change can break backwards compatibility.
+That version format is `MAJOR.MINOR.PATCH`. At major versions 1 and on: a patch is a backwards-compatible bug fix; a minor version change is a backwards-compatible functionality change; and a major version change can break backwards compatibility. semver specifies that [anything can change at any time in major version 0](https://semver.org/#spec-item-4), but it may be better for [npm's caret (^) syntax](https://github.com/npm/node-semver#caret-ranges-123-025-004) to limit breaking API changes to the minor version number.
 
 ### Checking Status
 
