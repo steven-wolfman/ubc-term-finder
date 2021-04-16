@@ -187,7 +187,7 @@ The actual code has plenty of JSDoc comments to give users information about the
 
 We set up our configuration so that Jest test files can be in the `tests` folder under our project root or in [any of the default places](https://jestjs.io/docs/configuration#testmatch-arraystring): under any `__tests__` subfolder or named ending in `.spec.ts`, `.test.ts` or the like (e.g., `.test.jsx` for a [JSX file](https://reactjs.org/docs/introducing-jsx.html)). For now, we're testing in `tests/index.test.ts`, but we might be better off testing locally alongside our source so that imports in the tests don't get complicated.
 
-Jest automatically makes available various utility functions and the [`jest` object](https://reactjs.org/docs/introducing-jsx.html). So, the backbone of our test file is:
+Jest automatically makes available various utility functions and the [`jest` object](https://jestjs.io/docs/jest-object). So, the backbone of our test file is:
 
 ```typescript
 import * as module from "../src/index";
