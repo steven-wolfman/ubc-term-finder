@@ -195,9 +195,13 @@ npm notice
 + ubc-term-finder@0.0.1
 ```
 
+TODO: update that text above once we've fast-forwarded to the current main branch after pending PRs are completed.
+
 If we were to publish, it would be with version 0.0.1 and with the indicated package contents. Notice that the package will be just a few kilobytes (and usable with only those few kilobytes, since its only dependencies are for development), not the 200 megabytes it takes up installed on disk at this point!
 
 ### TODO: `prepublishOnly`
+
+TODO: also review https://github.com/actions/starter-workflows/blob/main/ci/npm-publish.yml. Perhaps we'd be better off doing what it says?
 
 There may be some steps we want to do when preparing for publication but not during a standard install. In our case, this includes compiling the TypeScript code to JavaScript and building the separate TypeScript definitions file (`*.d.ts`). This is done with a [script in `package.json` named `prepublishOnly`](https://docs.npmjs.com/cli/v7/using-npm/scripts#life-cycle-scripts). (Be aware that [the old `prepublish` script is deprecated](https://docs.npmjs.com/cli/v7/using-npm/scripts#prepare-and-prepublish); to do something before both publication and installation, use a `prepare` script instead.)
 
