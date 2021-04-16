@@ -162,7 +162,7 @@ Now everything is installed, but mostly still needs to be configured:
 
 ## Publishing an npm Package
 
-[npm](https://www.npmjs.com/) maintains a repository of packages that are easy to install and use. We want to make our package available for others to use there. We've already configured many elements relevant to `npm` package publication in `package.json` (the project name/description, which files to include, the entry point to the package, etc.), but we just used `1.0.0` as the version. According to semantic versioning ([semver](https://semver.org/)), that's fine, but it does mean we should have a reasonably stable public API. Since we may not be there yet, we'll instead start with version `0.0.1` in `package.json`:
+[npm](https://www.npmjs.com/) maintains a repository of packages that are easy to install and use. We want to make our package available for others to use there. We've already configured many elements relevant to `npm` package publication in [`package.json`](package.json) (the project name/description, which files to include, the entry point to the package, etc.), but we just used `1.0.0` as the version. According to semantic versioning ([semver](https://semver.org/)), that's fine, but it does mean we should have a reasonably stable public API. Since we may not be there yet, we'll instead start with version `0.0.1` in `package.json`:
 
 ```javascript
 "version": "0.0.1",
