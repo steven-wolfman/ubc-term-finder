@@ -197,7 +197,7 @@ describe("the getUbcTerm function", () => {
 });
 ```
 
-[`describe`](https://jestjs.io/docs/api#describename-fn) lets us group tests logically, which looks good and also allows coordinated setup/teardown using [`beforeAll`](https://jestjs.io/docs/api#beforeallfn-timeout), [`beforeEach`](https://jestjs.io/docs/api#beforeeachfn-timeout), [`afterAll`](https://jestjs.io/docs/api#afterallfn-timeout), and [`afterEach`](https://jestjs.io/docs/api#aftereachfn-timeout). Here, we group all our tests together under the description `the getUbcTerm function`. Then, we supply a [thunk](https://en.wikipedia.org/wiki/Thunk) (zero-argument function) that will run the test suite.
+[`describe`](https://jestjs.io/docs/api#describename-fn) lets us group tests logically and also allows coordinated setup/teardown using [`beforeAll`](https://jestjs.io/docs/api#beforeallfn-timeout), [`beforeEach`](https://jestjs.io/docs/api#beforeeachfn-timeout), [`afterAll`](https://jestjs.io/docs/api#afterallfn-timeout), and [`afterEach`](https://jestjs.io/docs/api#aftereachfn-timeout). Here, we group all our tests together under the description `the getUbcTerm function`. Then, we supply a [thunk](https://en.wikipedia.org/wiki/Thunk) (zero-argument function) that will run the test suite.
 
 Inside the `describe` block, we have more `describe` blocks and individual `test`s like:
 
