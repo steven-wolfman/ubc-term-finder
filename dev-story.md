@@ -162,13 +162,13 @@ Now everything is installed, but mostly still needs to be configured:
 
 ## Publishing an npm Package
 
-[npm](https://www.npmjs.com/) maintains a repository of packages that are easy to install and use. We want to make our package available for others to use there. We've already configured many elements relevant to `npm` package publication in `package.json` (the project name/description, which files to include, the entry point to the package, etc.), but we just used `1.0.0` as the version. According to semantic versioning ([semver](https://semver.org/)), that's fine, but it does mean we should have a reasonably stable public API. Since we may not be there yet, we'll instead start with version `0.0.1` in `package.json`:
+[npm](https://www.npmjs.com/) maintains a repository of packages that are easy to install and use. We want to make our package available for others to use there. We've already configured many elements relevant to `npm` package publication in [`package.json`](package.json) (the project name/description, which files to include, the entry point to the package, etc.), but we just used `1.0.0` as the version. According to semantic versioning ([semver](https://semver.org/)), that's fine, but it does mean we should have a reasonably stable public API. Since we may not be there yet, we'll instead start with version `0.0.1` in `package.json`:
 
 ```javascript
 "version": "0.0.1",
 ```
 
-That version format is `MAJOR.MINOR.PATCH`. A patch is a backwards-compatible bug fix. A minor version change is a backwards-compatible functionality change. A major version change can break backwards compatibility.
+That version format is `MAJOR.MINOR.PATCH`. At major versions 1 and on: a patch is a backwards-compatible bug fix; a minor version change is a backwards-compatible functionality change; and a major version change can break backwards compatibility. semver specifies that [anything can change at any time in major version 0](https://semver.org/#spec-item-4), but it may be better for [npm's caret (^) syntax](https://github.com/npm/node-semver#caret-ranges-123-025-004) to limit breaking API changes to the minor version number.
 
 ### Checking Status
 
@@ -195,11 +195,15 @@ npm notice
 + ubc-term-finder@0.0.1
 ```
 
+TODO: update that text above once we've fast-forwarded to the current main branch after pending PRs are completed.
+
 If we were to publish, it would be with version 0.0.1 and with the indicated package contents. Notice that the package will be just a few kilobytes (and usable with only those few kilobytes, since its only dependencies are for development), not the 200 megabytes it takes up installed on disk at this point!
 
 ### TODO: not publishing dev-story.md (maybe already not included, per the dry-run above?)
 
 ### TODO: `prepublishOnly`
+
+TODO: also review https://github.com/actions/starter-workflows/blob/main/ci/npm-publish.yml. Perhaps we'd be better off doing what it says?
 
 There may be some steps we want to do when preparing for publication but not during a standard install. In our case, this includes compiling the TypeScript code to JavaScript and building the separate TypeScript definitions file (`*.d.ts`). This is done with a [script in `package.json` named `prepublishOnly`](https://docs.npmjs.com/cli/v7/using-npm/scripts#life-cycle-scripts). (Be aware that [the old `prepublish` script is deprecated](https://docs.npmjs.com/cli/v7/using-npm/scripts#prepare-and-prepublish); to do something before both publication and installation, use a `prepare` script instead.)
 
