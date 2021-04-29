@@ -217,6 +217,16 @@ In our case, we want a careful check prior to publication that includes a build.
 "prepublishOnly": "run-s ?? test"  // TODO: not sure how to do a clean-install in the script!
 ```
 
+TODO: Probably we just need to use plain old bash with, e.g., &&. See the little script toward the bottom of https://betterstack.dev/blog/npm-package-best-practices/#heading-publishing-process for an example of a script that may be useful. (Though.. not sure of the value of having `npm run publish` run `npm publish`?)
+
+### TODO: side-effect-free designation?
+
+https://betterstack.dev/blog/npm-package-best-practices/#heading-side-effects
+
+### TODO: we have no install dependencies, but if you do: shrink-wrapping?
+
+https://betterstack.dev/blog/npm-package-best-practices/#heading-locking-dependencies
+
 # Unexplained Oddities and Unresolved Thoughts
 
 ## RESOLVED: Why does `babel` still show in `package-lock.json`?
