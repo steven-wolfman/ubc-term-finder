@@ -162,7 +162,7 @@ Now everything is installed, but mostly still needs to be configured:
 
 ## Publishing an npm Package
 
-[npm](https://www.npmjs.com/) maintains a repository of packages that are easy to install and use. We want to make our package available for others to use there. We've already configured many elements relevant to `npm` package publication in [`package.json`](package.json) (the project name/description, which files to include, the entry point to the package, etc.), but we just used `1.0.0` as the version. According to semantic versioning ([semver](https://semver.org/)), that's fine, but it does mean we should have a reasonably stable public API. Since we may not be there yet, we'll instead start with version `0.0.1` in `package.json`:
+[npm](https://www.npmjs.com/) maintains a repository of packages that are easy to install and use. We want to make our package available for others to use there. We've already used [`npm init`](https://docs.npmjs.com/cli/v7/commands/npm-init) to configure many elements relevant to `npm` package publication in [`package.json`](package.json) (the project name/description, which files to include, the entry point to the package, etc.), but we just used `1.0.0` as the version. According to semantic versioning ([semver](https://semver.org/)), that's fine, but it does mean we should have a reasonably stable public API. Since we may not be there yet, we'll instead start with version `0.0.1` in `package.json`:
 
 ```javascript
 "version": "0.0.1",
@@ -199,7 +199,7 @@ TODO: update that text above once we've fast-forwarded to the current main branc
 
 If we were to publish, it would be with version 0.0.1 and with the indicated package contents. Notice that the package will be just a few kilobytes (and usable with only those few kilobytes, since its only dependencies are for development), not the 200 megabytes it takes up installed on disk at this point!
 
-### TODO: not publishing dev-story.md (maybe already not included, per the dry-run above?)
+We wanted to ensure that _this file_ wasn't published in our package, but that's taken care of already by our `files` field in `package.json`. Only those specified files and the [ones included by default](https://docs.npmjs.com/cli/v7/commands/npm-publish#files-included-in-package) will be published.
 
 ### TODO: `prepublishOnly`
 
