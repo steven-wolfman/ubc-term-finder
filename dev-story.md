@@ -201,6 +201,8 @@ If we were to publish, it would be with version 0.0.1 and with the indicated pac
 
 We wanted to ensure that _this file_ wasn't published in our package, but that's taken care of already by our `files` field in `package.json`. Only those specified files and the [ones included by default](https://docs.npmjs.com/cli/v7/commands/npm-publish#files-included-in-package) will be published.
 
+### TODO: getting an npm account (I did that but failed to take notes!)
+
 ### TODO: `prepublishOnly`
 
 TODO: also review https://github.com/actions/starter-workflows/blob/main/ci/npm-publish.yml. Perhaps we'd be better off doing what it says?
