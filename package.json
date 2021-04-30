@@ -13,7 +13,7 @@
     "test": "TZ=\"America/Vancouver\" run-s check:* lint build test:*",
     "compile": "tsc",
     "clean": "run-p clean:*",
-    "check:format": "prettier --ignore-path .gitignore --list-different \"**/*.{js,ts,tsx}\"",
+    "check:format": "prettier --ignore-path .gitignore --list-different \"**/*.{js,ts,tsx}\" || (echo \"check:format failed. You may want to execute npm run format.\" && false)" ,
     "check:types": "tsc --noEmit",
     "clean:compiled": "del compiled",
     "clean:coverage": "del coverage",
