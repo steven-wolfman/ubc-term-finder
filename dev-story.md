@@ -217,7 +217,7 @@ test.skip("demonstrating that fake system timers do not advance", () => {
 });
 ```
 
-For most of the rest of our testing, we could get away with just this Jest functionality, but since automation is irresistible, especially when it optionally uses custom template strings, we're using [`test.each`](https://jestjs.io/docs/api#2-testeachtablename-fn-timeout) to streamline some of our testing across 12 separate dates/times. Both the array-based and template string versions of Jest's `each` functions let you specify a table of values to test against.
+Just this Jest functionality is enough for most of our testing. However, automation is irresistible, especially when it optionally uses custom template strings! So, we're using [`test.each`](https://jestjs.io/docs/api#2-testeachtablename-fn-timeout) to streamline some of our testing across 12 separate dates/times. Jest's `each` functions let you specify a table of values to test against, either through a template string or an array.
 
 In our case, each table row includes a textual description of the point in the term, the expected UBC Term to return, and the Date to use as the argument to the function). We then use `each`'s `printf`-style formatting with `$...` to reference variables in order to customize the test description text. Finally, we have the very compact test itself that relies on the parameterized arguments. Here's the result, leaving out the last 8 rows of the table for brevity:
 
