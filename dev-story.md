@@ -146,7 +146,7 @@ Now everything is installed, but mostly still needs to be configured:
        "test": "run-s check:* lint build test:*",
        "compile": "tsc",
        "clean": "run-p clean:*",
-       "check:format": "prettier --ignore-path .gitignore --list-different \"**/*.{js,ts,tsx}\"",
+       "check:format": "prettier --ignore-path .gitignore --list-different \"**/*.{js,ts,tsx}\" || (echo \"check:format failed. You may want to execute npm run format.\" && false)",
        "check:types": "tsc --noEmit",
        "clean:compiled": "del compiled",
        "clean:coverage": "del coverage",
@@ -157,7 +157,16 @@ Now everything is installed, but mostly still needs to be configured:
      }
    }
    ```
-   In order, this sets up a build script (which takes advantage of the fact that we can create `pre<whatever>`/`post<whatever>` scripts for any script to first `clean` and then `compile`), a test script (running several scripts in sequence via `run-s` using globbing (`*`) to run all the various cleaning/testing scripts), a compile script (that just runs typescript, which is already configured via `tsconfig.json` to understand where to look for source and to place output), and to clean up (running all the cleanup scripts in parallel, which themselves just delete working folders). Format checking uses `prettier` to find if it would complain about any Typescript (or Java or Typescript/JSX) files, and uses a command-line argument to ignore anything in the `.gitignore` file (but [in future it may be better to include the `.gitignore` in the `.prettierignore`](https://github.com/prettier/prettier/issues/8506)). Typechecking runs `tsc` but doesn't produce output. Linting simply runs `eslint` (which needs to be separately configured). Testing runs `jest` (which needs to be separately configured). Note that `react-svg` takes advantage of specifying a config file to `jest` in order to have many flavors of testing. We may want to do that with `jest` or with another command.
+   This sets up
+   - `prebuild`/`build`: a build script. We can create `pre<whatever>`/`post<whatever>` scripts to run before/after any script we like. So, on `npm run build`, this first runs `clean` and then `compile`.
+   - `test`: an overall test script. This runs several scripts in sequence via [`run-s`](https://github.com/mysticatea/npm-run-all/blob/HEAD/docs/run-s.md). `run-s` supports globbing (`*`) that lets us run all the various cleaning/testing scripts.
+   - `compile`: a compilation script that just runs typescript. Typescript is already configured via `tsconfig.json` to understand where to look for source code and to place output.
+   - `clean`: an overall cleaning script. This uses [`run-p`](https://github.com/mysticatea/npm-run-all/blob/HEAD/docs/run-p.md), which is just like `run-s` except that it runs commands in parallel. It runs all the `clean:*` scripts. Those are `clean:compiled`, `clean:coverage`, and `clean:build`, which just delete working folders using [`del`](https://www.npmjs.com/package/del-cli).
+   - `check:format`: a format checking script. This runs `prettier` to find if it would complain about any Typescript (or Java or TSX/JSX) files. It uses a command-line argument to ignore anything in the `.gitignore` file (but [in future it may be better to include the `.gitignore` in the `.prettierignore`](https://github.com/prettier/prettier/issues/8506)). Our first version of the `check:format` script only called `prettier`, but we got confused about what to do when `prettier` failed! So, the version above uses `echo` to give advice on what to do when `prettier` fails.
+   - `check:types`: typechecking script that runs `tsc` without producing output.
+   - `format`: a format _fixing_ script that runs `prettier` and has it rewrite files in place.
+   - `lint`: a linting script that simply runs `eslint`, which needs to be separately configured.
+   - `test:plain`: the actual core test running script. This runs `jest`, which needs to be separately configured. (We could take advantage of specifying a config file to `jest` on the command-line in order to have many flavors of testing, but we did not need to here. See [`react-svg`](https://github.com/tanem/react-svg) for an example of how to do that.)
 
 ## Development
 
@@ -322,3 +331,5 @@ No idea. Should we have used one of the ["typescript base configs"](https://www.
 ## Should we spin off some of the `jest` config into a tutorial?
 
 Both our handling of `testMatch` in `jest.config.js` and using it in `.eslintrc.js` does not seem to be widely documented. If this is a good solution, it might be worth sharing around. Maybe just answer <https://stackoverflow.com/questions/31629389/how-to-use-eslint-with-jest>.
+
+It's a different piece, but our handling of the `check:format` script (giving a message about what to do) is better than the `package.json` that was given to us.
