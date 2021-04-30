@@ -254,7 +254,7 @@ With the full 12 row table, this represents 12 separate tests expressed compactl
 
 ##### Initialization/Teardown/Skip May Not Work as You Think
 
-[`describe.skip`](https://jestjs.io/docs/api#describeskipname-fn) and Jest's test running framework as a whole may not work as you think. A good way to experiment with this is to replace the start of our overall tests (`describe("the getUbcTerm function",`) with:
+[`describe.skip`](https://jestjs.io/docs/api#describeskipname-fn) and Jest's test running framework as a whole may not work as you think. A good way to experiment with this is to replace the first line of our overall tests (`describe("the getUbcTerm function", () => {`) with these lines:
 
 ```typescript
 describe.skip("the getUbcTerm function", () => {
