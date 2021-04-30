@@ -290,13 +290,25 @@ One big complication we ran into is testing against timezones using Javascript's
 "test": "TZ=\"America/Vancouver\" run-s check:* lint build test:*",
 ```
 
+To enforce that this is working, we added a test that checks that `process.env` has an environment variable `TZ` set to `"America/Vancouver"`.
+
 ##### Time Is a Mess
 
-Time is so complicated that [Jest has specific support for working with time](https://jestjs.io/docs/timer-mocks). Since we're interested in `Date` and using Jest before version 27, we need to [use "modern" timers](https://jestjs.io/docs/jest-object#jestusefaketimersimplementation-modern--legacy). Using that, we can make "now" whatever we want. Alternatively, we could use jest's [`spyon` function](https://jestjs.io/docs/jest-object#jestspyonobject-methodname) with [`global` and `Date` as the parameters](https://stackoverflow.com/questions/28504545/how-to-mock-a-constructor-like-new-date/57599680#57599680) in order to mock `Date` and inspect how it's used. ([`global`](https://nodejs.org/api/globals.html#globals_global) is a Node.js-specific variable storing an object representing the global scope in the browser.) The former solution is probably **better**, but since we're trying to learn, we use both!
+Time is so complicated that [Jest has specific support for working with time](https://jestjs.io/docs/timer-mocks). Since we're interested in `Date` and using Jest before version 27, we need to [use "modern" timers](https://jestjs.io/docs/jest-object#jestusefaketimersimplementation-modern--legacy). Using that, we can make "now" whatever we want. Alternatively, we could use jest's [`spyon` function](https://jestjs.io/docs/jest-object#jestspyonobject-methodname) with [`global` and `Date` as the parameters](https://stackoverflow.com/questions/28504545/how-to-mock-a-constructor-like-new-date/57599680#57599680) in order to mock `Date` and inspect how it's used. ([`global`](https://nodejs.org/api/globals.html#globals_global) is a Node.js-specific variable storing an object representing the global scope in the browser.) The Jest timer solution is probably **better** than the mocking one, but since we're trying to learn, we use both!
 
-Mocking can be a bit tricky in combination with TypeScript. Fortunately, just telling TypeScript our spy variable was of type `jest.SpyInstance` was enough for it to resolve typing issues.
+Testing using fake timers turns out to be straightforward. We use a tabular `test.each` similar to the one described above to make 12 individual test cases with one compact, parameterized test function. That test simply sets the system time so that "now" is the time we want, calls `getUbcTerm` with no parameters and checks its result, and finally turns real timers back on again to avoid ruining future tests:
 
-Here's the setup for our spy-based testing:
+```typescript
+({ ubcterm, date }) => {
+  jest.useFakeTimers("modern").setSystemTime(date);
+  expect(module.getUbcTerm()).toEqual(ubcterm);
+  jest.useRealTimers();
+};
+```
+
+Mocking, on the other hand, is complicated!
+
+Here's the setup for our spy-based testing, which we explain below:
 
 ```typescript
 describe("tested via mocking, which is probably inferior to using jest.setSystemTime", () => {
@@ -314,7 +326,46 @@ describe("tested via mocking, which is probably inferior to using jest.setSystem
   });
 ```
 
-We need to access `dateSpy` everywhere inside the `describe` block; so, we make it a local variable in that block. We actually initialize it in `beforeAll` to be confident that the initialization only happens just before the tests are run, and we use [`mockRestore`](https://jestjs.io/docs/mock-function-api#mockfnmockrestore) to restore the original `Date` constructor in the `afterAll` block to avoid messing with other tests. Before each test, we use [`mockClear`](https://jestjs.io/docs/mock-function-api#mockfnmockclear) to reset the record of calls in the spy, in case the test relies on inspecting how or how many times the `Date` constructor was called.
+First of all, just getting TypeScript to understand the types when using mocking can be tricky. Fortunately, we only need to explicitly give our spy variable's type to satisfy TypeScript with the code `let dateSpy: jest.SpyInstance`.
+
+Next, we want to spy on calls to the `Date` constructor in all our tests. So, we create the local variable `dateSpy` in the testing block. We actually initialize it in `beforeAll` using `global` and `"Date"` as described above. Doing this in `beforeAll` ensures that the initialization happens exactly once just before the tests are run. Similarly, we use [`mockRestore`](https://jestjs.io/docs/mock-function-api#mockfnmockrestore) to restore the original `Date` constructor in the `afterAll` block to avoid messing with other tests. Before each test, we use [`mockClear`](https://jestjs.io/docs/mock-function-api#mockfnmockclear) to reset the record of calls in the spy, in case the test relies on inspecting how or how many times the `Date` constructor was called.
+
+With that setup, we can monitor and control the `Date` constructor. For example, our first test ensures that calling `getUbcTerm` with no arguments uses the current date/time to construct its return value:
+
+```typescript
+test("including using the result of 'new Date()' when called with no arguments", () => {
+  const result = module.getUbcTerm();
+
+  // new Date() should be called exactly once, with no arguments:
+  expect(dateSpy).toHaveBeenCalledTimes(1);
+  expect(dateSpy).toHaveBeenCalledWith();
+  expect(dateSpy).toHaveReturned();
+
+  // And the end result is the same as getUbcTerm with the explicit date
+  const date = dateSpy.mock.results[0].value;
+  expect(result).toEqual(module.getUbcTerm(date));
+});
+```
+
+That test:
+
+- calls `getUbcTerm` with no arguments,
+- uses the spy to confirm that the `Date` constructor was called exactly one time with no arguments, and it successfully returned a value,
+- grabs the Date value returned from that single Date constructor call (which lives in [`.mock.results`](https://jestjs.io/docs/mock-function-api#mockfnmockresults)), and
+- checks that calling `getUbcTerm` with that Date value as an explicit parameter gives the same result as the parameterless call.
+
+Then, we create our usual set of 12 tests with a tabular `test.each` call. In that parameterized test, we receive the term expected as a result for a given date. We call [`mockImplementationOnce`](https://jestjs.io/docs/mock-function-api#mockfnmockimplementationoncefn) to make the `Date` constructor return what _we_ want and then just test that calling `getUbcTerm` with no parameters gives us our expected result:
+
+```typescript
+({ ubcterm, date }) => {
+  dateSpy.mockImplementationOnce(() => {
+    return date;
+  });
+  expect(module.getUbcTerm()).toEqual(ubcterm);
+};
+```
+
+(We could have used [`mockReturnValueOnce`](https://jestjs.io/docs/mock-function-api#mockfnmockreturnvalueoncevalue) instead of `mockImplementationOnce`.)
 
 # Unexplained Oddities and Unresolved Thoughts
 
