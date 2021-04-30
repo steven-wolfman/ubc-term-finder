@@ -231,7 +231,7 @@ test.each`
   ${"at the end"}    | ${{ year: 2020, session: "W", termNum: 1 }} | ${W1_END_2020}
   ${"at the start"}  | ${{ year: 1000, session: "W", termNum: 2 }} | ${W2_START_1000}
 `(
-  "should produce $ubcterm.session$ubcterm.termNum $point ($date)",
+  "should produce $ubcterm.session$ubcterm.termNum $point of the term ($date)",
   ({ ubcterm, date }) => {
     expect(module.getUbcTerm(date)).toEqual(ubcterm);
   }
