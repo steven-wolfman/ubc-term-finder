@@ -217,9 +217,11 @@ test.skip("demonstrating that fake system timers do not advance", () => {
 });
 ```
 
-For most of the rest of our testing, we could get away with just this Jest functionality, but since automation is irresistible, especially when it optionally uses custom template strings, we're using [`test.each`](https://jestjs.io/docs/api#2-testeachtablename-fn-timeout) to streamline some of our testing across 12 separate dates/times. Both the array-based and template string versions of Jest's `each` functions let you specify a table of values to test against.
+Just this Jest functionality is enough for most of our testing. However, automation is irresistible, especially when it optionally uses customized [tagged template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates)! So, we're using [`test.each`](https://jestjs.io/docs/api#2-testeachtablename-fn-timeout) to streamline some of our testing across 12 separate dates/times: four terms (W1, W2, S1, S2) and three points in each term (at the start, at the end, and somewhere in the middle). Jest's `each` functions let you specify a table of values to test against, either through a template literal or an array.
 
-In our case, each table row includes a textual description of the point in the term, the expected UBC Term to return, and the Date to use as the argument to the function). We then use `each`'s `printf`-style formatting with `$...` to reference variables in order to customize the test description text. Finally, we have the very compact test itself that relies on the parameterized arguments. Here's the result, leaving out the last 8 rows of the table for brevity:
+The template literal version of `test.each` uses the standard template literal syntax but rather than simply constructing a string, this tagged variant expects a table and uses it to set up testing. The header row sets up field names. Each table row supplies field values for one test, using the standard template literal `${...}` syntax, but repurposed to splice in JavaScript values for the fields.
+
+Let's take a look at the code (omitting the last 8 rows of the table for brevity) and then discuss what it means:
 
 ```typescript
 test.each`
@@ -229,24 +231,30 @@ test.each`
   ${"at the end"}    | ${{ year: 2020, session: "W", termNum: 1 }} | ${W1_END_2020}
   ${"at the start"}  | ${{ year: 1000, session: "W", termNum: 2 }} | ${W2_START_1000}
 `(
-  "should produce $ubcterm.session$ubcterm.termNum $point ($date)",
+  "should produce $ubcterm.session$ubcterm.termNum $point of the term ($date)",
   ({ ubcterm, date }) => {
     expect(module.getUbcTerm(date)).toEqual(ubcterm);
   }
 );
 ```
 
-Note that the `${...}` syntax is standard syntax inside a template string to splice in JavaScript.
+Our tabular fields are:
+
+- a textual description of the point in the term,
+- the expected UBC Term to return, and
+- the Date to use as the argument to the function.
+
+Just after the table finishes, we use the fields to construct individualized test names like `should produce W1 at the start of the term (1000-09-01T08:12:28.000Z)`. `test.each` supplies `printf`-style formatting for the test name, with `$...` to reference the fields. Then, we write a very compact test that relies on receiving the fields as parameters.
 
 With the full 12 row table, this represents 12 separate tests expressed compactly. Note: We defined `W1_START_1000` and the other `Date` constants at the top of our file. They are just the result of calling `new Date(...)` with specific dates/times to be tested.
 
-(In our code, we don't need `point` after we're done with the test description text. The template string version of `each` passes the arguments as a single object. So, we can just leave `point` out in our [destructuring parameter syntax](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#unpacking_fields_from_objects_passed_as_a_function_parameter). If you used the array-based version, you'd need your function to take three parameters but would just ignore the first parameter.)
+(In our code, we don't need `point` after we're done constructing the individualized test name. The template literal version of `each` passes the arguments as a single object. So, we can just leave `point` out in our [destructuring parameter syntax](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#unpacking_fields_from_objects_passed_as_a_function_parameter). If you used the array-based version, you'd need your function to take three parameters but would just ignore the first parameter.)
 
 #### Surprises and Complications
 
 ##### Initialization/Teardown/Skip May Not Work as You Think
 
-[`describe.skip`](https://jestjs.io/docs/api#describeskipname-fn) and jest's test running framework as a whole may not work quite as you think. A good way to experiment with this is to replace the start of our overall tests (`describe("the getUbcTerm function",`) with:
+[`describe.skip`](https://jestjs.io/docs/api#describeskipname-fn) and Jest's test running framework as a whole may not work as you think. A good way to experiment with this is to replace the first line of our overall tests (the line: `describe("the getUbcTerm function", () => {`) with these lines:
 
 ```typescript
 describe.skip("the getUbcTerm function", () => {

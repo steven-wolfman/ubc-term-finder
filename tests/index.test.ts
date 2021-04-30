@@ -41,7 +41,7 @@ describe("the getUbcTerm function", () => {
     ${"in the middle"} | ${{ year: 1999, session: "S", termNum: 2 }} | ${S2_MID_1999}
     ${"at the end"}    | ${{ year: 2020, session: "S", termNum: 2 }} | ${S2_END_2020}
   `(
-    "should produce $ubcterm.session$ubcterm.termNum $point ($date)",
+    "should produce $ubcterm.session$ubcterm.termNum $point of the term ($date)",
     ({ ubcterm, date }) => {
       expect(module.getUbcTerm(date)).toEqual(ubcterm);
     }
@@ -88,7 +88,7 @@ describe("the getUbcTerm function", () => {
         ${"in the middle"} | ${{ year: 1999, session: "S", termNum: 2 } as module.UbcTerm} | ${S2_MID_1999}
         ${"at the end"}    | ${{ year: 2020, session: "S", termNum: 2 } as module.UbcTerm} | ${S2_END_2020}
       `(
-        "producing the appropriate term: $ubcterm.session$ubcterm.termNum $point ($date)",
+        "producing the appropriate term: $ubcterm.session$ubcterm.termNum $point of the term ($date)",
         ({ ubcterm, date }) => {
           dateSpy.mockImplementationOnce(() => {
             return date;
@@ -131,7 +131,7 @@ describe("the getUbcTerm function", () => {
         ${"in the middle"} | ${{ year: 1999, session: "S", termNum: 2 } as module.UbcTerm} | ${S2_MID_1999}
         ${"at the end"}    | ${{ year: 2020, session: "S", termNum: 2 } as module.UbcTerm} | ${S2_END_2020}
       `(
-        "producing the appropriate term: $ubcterm.session$ubcterm.termNum $point ($date)",
+        "producing the appropriate term: $ubcterm.session$ubcterm.termNum $point of the term ($date)",
         ({ ubcterm, date }) => {
           jest.useFakeTimers("modern").setSystemTime(date);
           expect(module.getUbcTerm()).toEqual(ubcterm);
