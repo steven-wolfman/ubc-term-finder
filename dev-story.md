@@ -217,7 +217,7 @@ test.skip("demonstrating that fake system timers do not advance", () => {
 });
 ```
 
-Just this Jest functionality is enough for most of our testing. However, automation is irresistible, especially when it optionally uses customized [tagged template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates)! So, we're using [`test.each`](https://jestjs.io/docs/api#2-testeachtablename-fn-timeout) to streamline some of our testing across 12 separate dates/times. Jest's `each` functions let you specify a table of values to test against, either through a template literal or an array.
+Just this Jest functionality is enough for most of our testing. However, automation is irresistible, especially when it optionally uses customized [tagged template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates)! So, we're using [`test.each`](https://jestjs.io/docs/api#2-testeachtablename-fn-timeout) to streamline some of our testing across 12 separate dates/times: four terms (W1, W2, S1, S2) and three points in each term (at the start, at the end, and somewhere in the middle). Jest's `each` functions let you specify a table of values to test against, either through a template literal or an array.
 
 The template literal version of `test.each` uses the standard template literal syntax but rather than simply constructing a string, this tagged variant expects a table and uses it to set up testing. The header row sets up field names. Each table row supplies field values for one test, using the standard template literal `${...}` syntax, but repurposed to splice in JavaScript values for the fields.
 
