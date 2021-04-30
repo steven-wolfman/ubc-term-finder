@@ -244,7 +244,7 @@ Our tabular fields are:
 - the expected UBC Term to return, and
 - the Date to use as the argument to the function.
 
-Just after the table finishes, we use the fields to construct individualized test names like `should produce W1 at the start (1000-09-01T08:12:28.000Z)`. `test.each` supplies `printf`-style formatting for the test name, with `$...` to reference the fields. Then, we write a very compact test that relies on receiving the fields as parameters.
+Just after the table finishes, we use the fields to construct individualized test names like `should produce W1 at the start of the term (1000-09-01T08:12:28.000Z)`. `test.each` supplies `printf`-style formatting for the test name, with `$...` to reference the fields. Then, we write a very compact test that relies on receiving the fields as parameters.
 
 With the full 12 row table, this represents 12 separate tests expressed compactly. Note: We defined `W1_START_1000` and the other `Date` constants at the top of our file. They are just the result of calling `new Date(...)` with specific dates/times to be tested.
 
