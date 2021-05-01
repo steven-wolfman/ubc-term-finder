@@ -24,7 +24,7 @@ To contribute to the package, we'll use a [branch-and-pull-request workflow](htt
 
 ### Basic Setup
 
-This will be an npm package using [TypeScript](https://www.typescriptlang.org/). Typescript already supports decent backwards-compatibility via targeting older ECMAScript standards in compilation (defaulting to the 20-year-old ES3); so, we'll skip using [Babel](https://babeljs.io/), at least at first. (Both [Babel](https://babeljs.io/docs/en/babel-preset-typescript) and [Typescript](https://www.typescriptlang.org/docs/handbook/babel-with-typescript.html) have notes on these systems working together, should we need to use them both.) We'll want, at minimum, to test with [Jest](https://jestjs.io/).
+This will be an npm package using [TypeScript](https://www.typescriptlang.org/). Typescript already supports good backwards-compatibility via targeting older ECMAScript standards in compilation (defaulting to the 20-year-old ES3); so, we'll skip using [Babel](https://babeljs.io/), at least at first. (Both [Babel](https://babeljs.io/docs/en/babel-preset-typescript) and [Typescript](https://www.typescriptlang.org/docs/handbook/babel-with-typescript.html) have notes on these systems working together, should we need to use them both.) We'll want, at minimum, to test with [Jest](https://jestjs.io/).
 
 So, let's get all that set up:
 
@@ -102,7 +102,7 @@ Now everything is installed, but mostly still needs to be configured:
    };
    ```
 
-   (`import` syntax is not usable in this file; so, we used `require`. Below, we exclude `*.js` files from `eslint` checks for use of `import`.)
+   (`import` syntax is not usable in this file; so, we used `require`. Below, we exclude `*.js` files from `eslint` checks for use of `import`. Also, the `ts-jest` preset will make TypeScript test files work (and allow, e.g., ES6 syntax), but if you want to use `*.js` test files, you may need to reconfigure `ts-jest` or use `babel`.)
 
 3. [eslint config](https://eslint.org/docs/user-guide/configuring/): `eslint` can produce a config file with `npx eslint --init`. Among other things, we selected support for TypeScript, which installed `@typescript-eslint/eslint-plugin` and `@typescript-eslint/parser`. We initially used `json` format for the file, but to handle `jest` files, we switched to `javascript` format so we could import and rely on the matching pattern for tests used by `jest`. The resulting file looks like:
 
@@ -146,18 +146,226 @@ Now everything is installed, but mostly still needs to be configured:
        "test": "run-s check:* lint build test:*",
        "compile": "tsc",
        "clean": "run-p clean:*",
-       "check:format": "prettier --list-different \"**/*.{js,ts,tsx}\"",
+       "check:format": "prettier --ignore-path .gitignore --list-different \"**/*.{js,ts,tsx}\" || (echo \"check:format failed. You may want to execute npm run format.\" && false)",
        "check:types": "tsc --noEmit",
        "clean:compiled": "del compiled",
        "clean:coverage": "del coverage",
        "clean:build": "del build",
-       "format": "prettier --write \"**/*.{js,ts,tsx}\"",
+       "format": "prettier --ignore-path .gitignore --write \"**/*.{js,ts,tsx}\"",
        "lint": "eslint .",
        "test:plain": "jest"
      }
    }
    ```
-   In order, this sets up a build script (which takes advantage of the fact that we can create `pre<whatever>`/`post<whatever>` scripts for any script to first `clean` and then `compile`), a test script (running several scripts in sequence via `run-s` using globbing (`*`) to run all the various cleaning/testing scripts), a compile script (that just runs typescript, which is already configured via `tsconfig.json` to understand where to look for source and to place output), and to clean up (running all the cleanup scripts in parallel, which themselves just delete working folders). Format checking uses `prettier` to find if it would complain about any Typescript (or Java or Typescript/JSX) files. Typechecking runs `tsc` but doesn't produce output. Linting simply runs `eslint` (which needs to be separately configured). Testing runs `jest` (which needs to be separately configured). Note that `react-svg` takes advantage of specifying a config file to `jest` in order to have many flavors of testing. We may want to do that with `jest` or with another command.
+   This sets up
+   - `prebuild`/`build`: a build script. We can create `pre<whatever>`/`post<whatever>` scripts to run before/after any script we like. So, on `npm run build`, this first runs `clean` and then `compile`.
+   - `test`: an overall test script. This runs several scripts in sequence via [`run-s`](https://github.com/mysticatea/npm-run-all/blob/HEAD/docs/run-s.md). `run-s` supports globbing (`*`) that lets us run all the various cleaning/testing scripts.
+   - `compile`: a compilation script that just runs typescript. Typescript is already configured via `tsconfig.json` to understand where to look for source code and to place output.
+   - `clean`: an overall cleaning script. This uses [`run-p`](https://github.com/mysticatea/npm-run-all/blob/HEAD/docs/run-p.md), which is just like `run-s` except that it runs commands in parallel. It runs all the `clean:*` scripts. Those are `clean:compiled`, `clean:coverage`, and `clean:build`, which just delete working folders using [`del`](https://www.npmjs.com/package/del-cli).
+   - `check:format`: a format checking script. This runs `prettier` to find if it would complain about any Typescript (or Java or TSX/JSX) files. It uses a command-line argument to ignore anything in the `.gitignore` file (but [in future it may be better to include the `.gitignore` in the `.prettierignore`](https://github.com/prettier/prettier/issues/8506)). Our first version of the `check:format` script only called `prettier`, but we got confused about what to do when `prettier` failed! So, the version above uses `echo` to give advice on what to do when `prettier` fails.
+   - `check:types`: typechecking script that runs `tsc` without producing output.
+   - `format`: a format _fixing_ script that runs `prettier` and has it rewrite files in place.
+   - `lint`: a linting script that simply runs `eslint`, which needs to be separately configured.
+   - `test:plain`: the actual core test running script. This runs `jest`, which needs to be separately configured. (We could take advantage of specifying a config file to `jest` on the command-line in order to have many flavors of testing, but we did not need to here. See [`react-svg`](https://github.com/tanem/react-svg) for an example of how to do that.)
+
+## Development
+
+### Basic Stubbing and Testing
+
+We'll start development by stubbing out our primary function `getUbcTerm` and setting up some tests for it. As usual, we'll overengineer this little package to learn as much as we can!
+
+(BTW, why name it `getUbcTerm` rather than `getUBCTerm`? Acronyms and abbreviations are a mess for camelCase naming conventions (or conventions that distinguish constants using UPPERCASE). This [closed StackOverflow post](https://stackoverflow.com/questions/15526107/acronyms-in-camelcase) gives some suggestions regarding camelCase naming with acronyms (fine, [initialism or whatever](https://wwwnc.cdc.gov/eid/page/abbreviations-acronyms-initialisms#:~:text=An%20abbreviation%20is%20a%20truncated,DNA%2C%20RT%2DPCR)). We settled on wanting retain the advantages of camelCase vs. the dignity of an all-caps UBC.)
+
+Stubbing out the function requires learning some basic TypeScript, but since we assume our readers know JavaScript, the [official TypeScript for JS programmers](https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html) intro is probably sufficient. We use an interface to define our return type and then lay out the full type for `getUbcTerm`:
+
+```typescript
+export interface UbcTerm {
+  year: number;
+  session: "W" | "S";
+  termNum: 1 | 2;
+}
+
+export function getUbcTerm(date: Date = new Date()): UbcTerm {
+  return { year: 1999, session: "W", termNum: 1 };
+}
+```
+
+The actual code has plenty of JSDoc comments to give users information about the type and function, which after all is one of the big advantages of TypeScript over plain JavaScript!
+
+#### Jest Tests
+
+We set up our configuration so that Jest test files can be in the `tests` folder under our project root or in [any of the default places](https://jestjs.io/docs/configuration#testmatch-arraystring): under any `__tests__` subfolder or named ending in `.spec.ts`, `.test.ts` or the like (e.g., `.test.jsx` for a [JSX file](https://reactjs.org/docs/introducing-jsx.html)). For now, we're testing in `tests/index.test.ts`, but we might be better off testing locally alongside our source so that imports in the tests don't get complicated.
+
+Jest automatically makes available various utility functions and the [`jest` object](https://jestjs.io/docs/jest-object). So, the backbone of our test file is:
+
+```typescript
+import * as module from "../src/index";
+
+describe("the getUbcTerm function", () => {
+  ...
+});
+```
+
+[`describe`](https://jestjs.io/docs/api#describename-fn) lets us group tests logically and also allows coordinated setup/teardown using [`beforeAll`](https://jestjs.io/docs/api#beforeallfn-timeout), [`beforeEach`](https://jestjs.io/docs/api#beforeeachfn-timeout), [`afterAll`](https://jestjs.io/docs/api#afterallfn-timeout), and [`afterEach`](https://jestjs.io/docs/api#aftereachfn-timeout). Here, we group all our tests together under the description `the getUbcTerm function`. Then, we supply a [thunk](https://en.wikipedia.org/wiki/Thunk) (zero-argument function) that will run the test suite.
+
+Inside the `describe` block, we have more `describe` blocks and individual `test`s like:
+
+```typescript
+test("should be accessible in the module", () => {
+  expect(module.getUbcTerm).toBeDefined();
+});
+```
+
+Again, this has descriptive text and a thunk. When run, the thunk checks that `module.getUbcTerm` is defined. Each actual assertion in a test is an `expect` chained with one of many available [matchers](https://jestjs.io/docs/expect) like [`toBeDefined`](https://jestjs.io/docs/expect#tobedefined) that inspects the value. The matcher we use most is [`toEqual`](https://jestjs.io/docs/expect#toequalvalue), which performs deep equality checking.
+
+Jest's [`test.todo`](https://jestjs.io/docs/api#testtodoname) is a great way to document planned tests. [`test.skip`](https://jestjs.io/docs/api#testskipname-fn)/[`describe.skip`](https://jestjs.io/docs/api#describeskipname-fn) are great ways to skip tests in progress. In our case, we use `test.skip` to skip a working but unnecessary test that is included only to demonstrate that [`jest.setSystemTime`](https://jestjs.io/docs/jest-object#jestsetsystemtimenow-number--date) works:
+
+```typescript
+test.skip("demonstrating that fake system timers do not advance", () => {
+  ...
+});
+```
+
+Just this Jest functionality is enough for most of our testing. However, automation is irresistible, especially when it optionally uses customized [tagged template literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates)! So, we're using [`test.each`](https://jestjs.io/docs/api#2-testeachtablename-fn-timeout) to streamline some of our testing across 12 separate dates/times: four terms (W1, W2, S1, S2) and three points in each term (at the start, at the end, and somewhere in the middle). Jest's `each` functions let you specify a table of values to test against, either through a template literal or an array.
+
+The template literal version of `test.each` uses the standard template literal syntax but rather than simply constructing a string, this tagged variant expects a table and uses it to set up testing. The header row sets up field names. Each table row supplies field values for one test, using the standard template literal `${...}` syntax, but repurposed to splice in JavaScript values for the fields.
+
+Let's take a look at the code (omitting the last 8 rows of the table for brevity) and then discuss what it means:
+
+```typescript
+test.each`
+  point              | ubcterm                                     | date
+  ${"at the start"}  | ${{ year: 1000, session: "W", termNum: 1 }} | ${W1_START_1000}
+  ${"in the middle"} | ${{ year: 1999, session: "W", termNum: 1 }} | ${W1_MID_1999}
+  ${"at the end"}    | ${{ year: 2020, session: "W", termNum: 1 }} | ${W1_END_2020}
+  ${"at the start"}  | ${{ year: 1000, session: "W", termNum: 2 }} | ${W2_START_1000}
+`(
+  "should produce $ubcterm.session$ubcterm.termNum $point of the term ($date)",
+  ({ ubcterm, date }) => {
+    expect(module.getUbcTerm(date)).toEqual(ubcterm);
+  }
+);
+```
+
+Our tabular fields are:
+
+- a textual description of the point in the term,
+- the expected UBC Term to return, and
+- the Date to use as the argument to the function.
+
+Just after the table finishes, we use the fields to construct individualized test names like `should produce W1 at the start of the term (1000-09-01T08:12:28.000Z)`. `test.each` supplies `printf`-style formatting for the test name, with `$...` to reference the fields. Then, we write a very compact test that relies on receiving the fields as parameters.
+
+With the full 12 row table, this represents 12 separate tests expressed compactly. Note: We defined `W1_START_1000` and the other `Date` constants at the top of our file. They are just the result of calling `new Date(...)` with specific dates/times to be tested.
+
+(In our code, we don't need `point` after we're done constructing the individualized test name. The template literal version of `each` passes the arguments as a single object. So, we can just leave `point` out in our [destructuring parameter syntax](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#unpacking_fields_from_objects_passed_as_a_function_parameter). If you used the array-based version, you'd need your function to take three parameters but would just ignore the first parameter.)
+
+#### Surprises and Complications
+
+##### Initialization/Teardown/Skip May Not Work as You Think
+
+[`describe.skip`](https://jestjs.io/docs/api#describeskipname-fn) and Jest's test running framework as a whole may not work as you think. A good way to experiment with this is to replace the first line of our overall tests (the line: `describe("the getUbcTerm function", () => {`) with these lines:
+
+```typescript
+describe.skip("the getUbcTerm function", () => {
+  console.log("When does 'bare' code in a describe block run?");
+  beforeAll(() => {
+    console.log("When does 'beforeAll' code run?");
+  });
+  beforeEach(() => {
+    console.log("When does 'beforeEach' code run?");
+  });
+```
+
+Jest still processes skipped `describe` blocks. So, this will print `When does 'bare' code in a describe block run?`. `beforeAll` and `beforeEach` are meant to run setup code before a set of tests run (`All`) or before each test runs individually (`Each`). Thankfully, neither `before` block runs in a skipped block. Jest also tells us the number of tests that were skipped and, depending on what you skip, may give further information about the skipped tests like their text.
+
+It's worth thinking about this if you put initialization or teardown code unprotected by a `before`/`after` block. That code may run at a surprising time and so impact its own and other tests in surprising ways!
+
+You can remove the `.skip` above but leave the logging in to learn a bit more about how `beforeAll`/`beforeEach` work.
+
+##### Timezones Are a Mess
+
+One big complication we ran into is testing against timezones using Javascript's Date object (which will hopefully be replaced by [Temporal](https://github.com/tc39/proposal-temporal) soon). Within Jest, it's not doable to set the timezone environment variable on the fly since Jest resists mutation to `process.env`. So, instead we used standard bash syntax for setting environment variables in `package.json` to set `TZ="America/Vancouver"` before the tests run. We put it in our `test` script in the `scripts` section:
+
+```javascript
+"test": "TZ=\"America/Vancouver\" run-s check:* lint build test:*",
+```
+
+To enforce that this is working, we added a test that checks that `process.env` has an environment variable `TZ` set to `"America/Vancouver"`.
+
+##### Time Is a Mess
+
+Time is so complicated that [Jest has specific support for working with time](https://jestjs.io/docs/timer-mocks). Since we're interested in `Date` and using Jest before version 27, we need to [use "modern" timers](https://jestjs.io/docs/jest-object#jestusefaketimersimplementation-modern--legacy). Using that, we can make "now" whatever we want. Alternatively, we could use jest's [`spyon` function](https://jestjs.io/docs/jest-object#jestspyonobject-methodname) with [`global` and `Date` as the parameters](https://stackoverflow.com/questions/28504545/how-to-mock-a-constructor-like-new-date/57599680#57599680) in order to mock `Date` and inspect how it's used. ([`global`](https://nodejs.org/api/globals.html#globals_global) is a Node.js-specific variable storing an object representing the global scope in the browser.) The Jest timer solution is probably **better** than the mocking one, but since we're trying to learn, we use both!
+
+Testing using fake timers turns out to be straightforward. We use a tabular `test.each` similar to the one described above to make 12 individual test cases with one compact, parameterized test function. That test simply sets the system time so that "now" is the time we want, calls `getUbcTerm` with no parameters and checks its result, and finally turns real timers back on again to avoid ruining future tests:
+
+```typescript
+({ ubcterm, date }) => {
+  jest.useFakeTimers("modern").setSystemTime(date);
+  expect(module.getUbcTerm()).toEqual(ubcterm);
+  jest.useRealTimers();
+};
+```
+
+Mocking, on the other hand, is complicated!
+
+Here's the setup for our spy-based testing, which we explain below:
+
+```typescript
+describe("tested via mocking, which is probably inferior to using jest.setSystemTime", () => {
+  let dateSpy: jest.SpyInstance;
+  beforeAll(() => {
+    dateSpy = jest.spyOn(global, "Date");
+  });
+  beforeEach(() => {
+    // Reset counters.
+    dateSpy.mockClear();
+  });
+  afterAll(() => {
+    // Return Date to its original functionality.
+    dateSpy.mockRestore();
+  });
+```
+
+First of all, just getting TypeScript to understand the types when using mocking can be tricky. Fortunately, we only need to explicitly give our spy variable's type to satisfy TypeScript with the code `let dateSpy: jest.SpyInstance`.
+
+Next, we want to spy on calls to the `Date` constructor in all our tests. So, we create the local variable `dateSpy` in the testing block. We actually initialize it in `beforeAll` using `global` and `"Date"` as described above. Doing this in `beforeAll` ensures that the initialization happens exactly once just before the tests are run. Similarly, we use [`mockRestore`](https://jestjs.io/docs/mock-function-api#mockfnmockrestore) to restore the original `Date` constructor in the `afterAll` block to avoid messing with other tests. Before each test, we use [`mockClear`](https://jestjs.io/docs/mock-function-api#mockfnmockclear) to reset the record of calls in the spy, in case the test relies on inspecting how or how many times the `Date` constructor was called.
+
+With that setup, we can monitor and control the `Date` constructor. For example, our first test ensures that calling `getUbcTerm` with no arguments uses the current date/time to construct its return value:
+
+```typescript
+test("including using the result of 'new Date()' when called with no arguments", () => {
+  const result = module.getUbcTerm();
+
+  // new Date() should be called exactly once, with no arguments:
+  expect(dateSpy).toHaveBeenCalledTimes(1);
+  expect(dateSpy).toHaveBeenCalledWith();
+  expect(dateSpy).toHaveReturned();
+
+  // And the end result is the same as getUbcTerm with the explicit date
+  const date = dateSpy.mock.results[0].value;
+  expect(result).toEqual(module.getUbcTerm(date));
+});
+```
+
+That test:
+
+- calls `getUbcTerm` with no arguments,
+- uses the spy to confirm that the `Date` constructor was called exactly one time with no arguments, and it successfully returned a value,
+- grabs the Date value returned from that single Date constructor call (which lives in [`.mock.results`](https://jestjs.io/docs/mock-function-api#mockfnmockresults)), and
+- checks that calling `getUbcTerm` with that Date value as an explicit parameter gives the same result as the parameterless call.
+
+Then, we create our usual set of 12 tests with a tabular `test.each` call. In that parameterized test, we receive the term expected as a result for a given date. We call [`mockImplementationOnce`](https://jestjs.io/docs/mock-function-api#mockfnmockimplementationoncefn) to make the `Date` constructor return what _we_ want and then just test that calling `getUbcTerm` with no parameters gives us our expected result:
+
+```typescript
+({ ubcterm, date }) => {
+  dateSpy.mockImplementationOnce(() => {
+    return date;
+  });
+  expect(module.getUbcTerm()).toEqual(ubcterm);
+};
+```
+
+(We could have used [`mockReturnValueOnce`](https://jestjs.io/docs/mock-function-api#mockfnmockreturnvalueoncevalue) instead of `mockImplementationOnce`.)
 
 ## Continuous Integration
 
@@ -259,3 +467,5 @@ No idea. Should we have used one of the ["typescript base configs"](https://www.
 ## Should we spin off some of the `jest` config into a tutorial?
 
 Both our handling of `testMatch` in `jest.config.js` and using it in `.eslintrc.js` does not seem to be widely documented. If this is a good solution, it might be worth sharing around. Maybe just answer <https://stackoverflow.com/questions/31629389/how-to-use-eslint-with-jest>.
+
+It's a different piece, but our handling of the `check:format` script (giving a message about what to do) is better than the `package.json` that was given to us.
