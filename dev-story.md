@@ -371,34 +371,56 @@ Then, we create our usual set of 12 tests with a tabular `test.each` call. In th
 
 [Continuous Integration](https://en.wikipedia.org/wiki/Continuous_integration) (CI) involves frequent commits that are automatically tested for quality control and then integrated into the main codebase. This can be paired with continuous delivery and/or deployment (and DevOps processes in general) so that updates rapidly make it to users.
 
-We'll focus on CI, which is already overkill (of course!) on a tiny, two-person project. The quality control can take any form, but typically includes a build and thorough testing. At minimum, we would want [unit tests](https://en.wikipedia.org/wiki/Unit_testing) (testing each source code piece indepentently) and [regression tests](https://en.wikipedia.org/wiki/Regression_testing) to avoid reintroducing bugs we fix along the way. We'll add to that some basic style/format checking, in other words, everything we've already set up in our `npm test` script. Using that script for CI also means we can run the same tests used for CI locally to develop confidence our pull requests will work!
+We'll focus on CI, which is already overkill (of course!) on a tiny, two-person project. The quality control can take any form, but typically includes a build and thorough testing. At minimum, we would want [unit tests](https://en.wikipedia.org/wiki/Unit_testing) (testing each source code piece indepentently) and [regression tests](https://en.wikipedia.org/wiki/Regression_testing) to avoid reintroducing bugs we fix along the way. We'll add to that TypeScript's static type checking and some basic style/format checking; in other words, everything we've already set up in our `npm test` script. Using that script for CI also means we can run our CI tests locally to develop confidence that our pull requests will work.
 
 There are several popular CI platforms including: [Travis CI](https://travis-ci.org/), [CircleCI](https://circleci.com/), [Google Cloud Build](https://cloud.google.com/build), [AWS CodePipeline](https://aws.amazon.com/codepipeline/), and [GitHub Actions](https://docs.github.com/en/actions/guides/about-continuous-integration) (which is based on [Azure Pipelines](https://azure.microsoft.com/en-us/services/devops/pipelines/)).
 
-Some quick searching around suggested not many meaningful differences between the available options at our scale, and especially because we're happy to suffer a bit of pain configuring in the name of Learning!! Since we're already using GitHub, we'll work with GitHub Actions.
+Some quick searching around suggested not many meaningful differences between the available options at our scale. Since we're already using GitHub, we'll work with GitHub Actions.
 
-GitHub Actions (and the other tools) essentially allows you to hook an event relevant to the software development pipeline to a script and then take action based on the script's results. We will likely focus on pushes/pull requests to main as our triggering event, but other possibilities include other common git actions, manual triggers, or scheduled events (via cron syntax). Actions might include accepting/rejecting a pull request, just flagging that success/failure for manual review, logging results, and notifying stakeholders of the process. Configuration is via a [YAML](https://en.wikipedia.org/wiki/YAML) file that specifies the event and its triggered workflow (script with embedded actions/commands).
+All the tools, including GitHub Actions, allow you to hook an event relevant to the software development pipeline to a script and then take action based on the script's results. We will likely focus on pushes/pull requests to the main branch as our triggering event. Other possibilities in GitHub Actions include other common git actions, manual triggers, and scheduled events (via [cron](https://en.wikipedia.org/wiki/Cron) syntax). Actions might include accepting/rejecting a pull request, just flagging that success/failure for manual review, logging results, and notifying stakeholders of the process. We configure Actions via a [YAML](https://en.wikipedia.org/wiki/YAML) file that lists the event and its triggered script, a "[workflow](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions)" in GitHub Actions.
 
-(YAML is essentially a configuration file language, which is surprising since the obvious acronym expansion if you've seen "YA*" and "*ML" acronyms before is "Yet Another Markup Language". Per its Wikipedia page, that is what the acronym originally meant, but since a configuration file isn't a markup file, they backronymed it to "YAML Ain't Markup Language". Go figure!)
+(YAML is essentially a configuration file language. That may be surprising if you've seen "YA*" and "*ML" acronyms before and guess YAML means "Yet Another Markup Language". Per its Wikipedia page, that is what the acronym originally meant. However, a configuration file isn't a markup file. So, they backronymed it to "YAML Ain't Markup Language". Go figure!)
 
 ### Getting Started with GitHub Actions
 
-For a quick start, check out the [GitHub Actions cheat sheet](https://github.github.io/actions-cheat-sheet/actions-cheat-sheet.html). For details, check out the [GitHub Actions reference](https://docs.github.com/en/actions/reference), but be aware that syntax like `on.<push|pull_request>.<branches|tags>` means "in the `on:` section (i.e., the value associated with the `on` key) of your YAML document, in the `push` or `pull` subsection, the `branches` or `tags` subsubsection" and `jobs.<job_id>.steps[*].name` means "in the `jobs:` section, in the subsection with the particular name to replace _job_id_ that you chose, in the `steps:` subsubsection, in some entry in the _list_ within that subsubsection, the `name:` section". (A list has entries starting with `- `.)
+For a quick start, check out the [GitHub Actions cheat sheet](https://github.github.io/actions-cheat-sheet/actions-cheat-sheet.html). For details, check out the [GitHub Actions reference](https://docs.github.com/en/actions/reference). You may find it easier to read the reference with some examples of the language it uses to describe its YAML syntax:
+
+- `on.<push|pull_request>.<branches|tags>` means:
+  - in the `on:` section (i.e., the value associated with the `on` key) of your YAML document,
+  - in the `push:` or `pull_request:` subsection,
+  - the `branches:` or `tags:` subsubsection.
+- `jobs.<job_id>.steps[*].name` means
+  - in the `jobs:` section,
+  - in the subsection with the particular name to replace _job_id_ that you chose,
+  - in the `steps:` subsubsection,
+  - in some entry in the _list_ within that subsubsection (where a YAML list has entries starting with `- `),
+  - the `name:` section.
 
 #### GitHub Actions Starter Workflows
 
-GitHub Actions has various starter workflows that you see when you click the Actions button on a repo for the first time or when you click the `New workflow` button later. You can also see this in the [repo backing that page](https://github.com/actions/starter-workflows). (The YAML files are in the direct subdirectories and their descriptions in the `properties` directory beneath that subdirectory.) Many of the `npm` based starter workflows use [`npm ci`](https://docs.npmjs.com/cli/v7/commands/npm-ci) which is short for `npm clean-install` (not continuous integration!).
+GitHub Actions has various starter workflows that you see when you click the Actions button on a repo for the first time or when you click the `New workflow` button later. You can also see this in the [repo backing that page](https://github.com/actions/starter-workflows). (The YAML files are in the direct subdirectories of the repo and their descriptions in the `properties` directory beneath that subdirectory.) Be aware that the commonly used command [`npm ci`](https://docs.npmjs.com/cli/v7/commands/npm-ci) is short for `npm clean-install` and _not_ continuous integration!
 
 Here are a few starter workflows of interest to us:
 
-- [Publishing an npm package on release](https://github.com/actions/starter-workflows/blob/main/ci/npm-publish.yml): This tests the project (via `npm test`), publishes to the npm repository, and publishes to the GitHub Packages repository when a [release](https://docs.github.com/en/github/administering-a-repository/managing-releases-in-a-repository) is created. It also demonstrates how to use [environment variables](https://docs.github.com/en/actions/reference/environment-variables) and [contexts](https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions) including specifically accessing [GitHub secrets](https://docs.github.com/en/actions/reference/encrypted-secrets) like the npm authorization token and how to configure dependencies among jobs (where both the publishing jobs depend on the testing job, but can themselves run in parallel). **HOWEVER**, note that the `$registry-url` syntax and any other `$...` syntax besides [`${{ ... }}` expression syntax](https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#about-contexts-and-expressions) (or within shell-specific run commands) is available only in special [workflow templates](https://docs.github.com/en/actions/learn-github-actions/sharing-workflows-with-your-organization#using-a-workflow-template-from-your-organization), not in standard workflows. Don't use it!
-- [Testing across node versions](https://github.com/actions/starter-workflows/blob/main/ci/node.js.yml): Uses a [matrix](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstrategymatrix) to generate a factorial testing strategy. (In this case, there's only one factor&mdash;the Node version, one of four to test with&mdash;but you can use multiple factors, in which case each combination of factor values is run as a separate job.) As above, the `$default-branch` syntax is unavailable in standard workflows. Instead, use the name of your default branch, likely `main`.
-- [Sample of a manually triggered workflow](https://github.com/actions/starter-workflows/blob/main/automation/manual.yml): Demonstrates how to set up a workflow that triggers manually via a UI or an API call. Among other things, shows how these commands can accept parameters.
+- [Publishing an npm package on release](https://github.com/actions/starter-workflows/blob/main/ci/npm-publish.yml): This tests and publishes a project to two repositories (npm and GitHub Packages). Specifically, it:
+
+  - triggers when a [release](https://docs.github.com/en/github/administering-a-repository/managing-releases-in-a-repository) is created,
+  - tests the project (via `npm test`),
+  - publishes to the main npm registry and GitHub Packages registry using `npm publish`
+  - configures which registry to publish to by passing different registry URLs as parameters to the [`setup-node` action](https://github.com/actions/setup-node) using [`with`](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepswith)),
+  - uses a [context](https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions) to access the npm authorization from the [GitHub secrets](https://docs.github.com/en/actions/reference/encrypted-secrets),
+  - passes that authorization along to the `run` commands using an [environment variable](https://docs.github.com/en/actions/reference/environment-variables), and
+  - uses [`needs`](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idneeds) to configure dependencies among the jobs so that the two publishing jobs can run in parallel but only after the testing job finishes.
+
+  **HOWEVER**, the `$registry-url` syntax used in this starter workflow is **not** available in a standard workflow. We, and probably you as well, are building standard workflows. This starter workflow is a special [workflow template](https://docs.github.com/en/actions/learn-github-actions/sharing-workflows-with-your-organization#using-a-workflow-template-from-your-organization). Workflow templates use syntax like `$registry-url` or `$default-branch` for variables that are instantiated to specific values when the template is used to create a standard workflow. The only `$` syntaxes legal in standard workflows are [`${{ ... }}` expression syntax](https://docs.github.com/en/actions/reference/context-and-expression-syntax-for-github-actions#about-contexts-and-expressions) and perhaps shell-specific syntax used in `run` commands (like normal [bash parameter substitution](https://tldp.org/LDP/abs/html/parameter-substitution.html)).
+
+- [Testing across node versions](https://github.com/actions/starter-workflows/blob/main/ci/node.js.yml): Tests across many different versions of node. Specifically, it uses a [matrix](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstrategymatrix) to generate a [factorial](https://en.wikipedia.org/wiki/Factorial_experiment) testing strategy. In this case, there's only one factor&mdash;the Node version, one of four to test with. If you use multiple factors, each combination of factor values is run as a separate job. Many other special-purpose variations are also possible. **CAUTION:** As above, the `$default-branch` syntax is unavailable in standard workflows. Instead, use the name of your default branch, likely `main`.
+- [Sample of a manually triggered workflow](https://github.com/actions/starter-workflows/blob/main/automation/manual.yml): Demonstrates how to set up a workflow that triggers manually via a UI or an API call. Among other things, this starter workflow shows how these commands can accept parameters.
 - [Welcome message to new contributors](https://github.com/actions/starter-workflows/blob/main/automation/greetings.yml): Invokes a built-in interaction to greet new participants on their first pull request or issue.
 
 ### Setting Up the Workflow File
 
-GitHub Actions looks for your workflows in `.github/workflows` for `.yml` and `.yaml` files. We want to create a workflow that runs on pushes and pull requests to the `main` branch. So, we'll start in our `.github/workflows/ci.yml` file with:
+GitHub Actions looks for your workflows in `.github/workflows` in files with `.yml` or `.yaml` extensions. We want to create a workflow that runs on pushes and pull requests to the `main` branch. So, we'll start in our `.github/workflows/ci.yml` file with:
 
 ```yaml
 name: Continuous Integration
@@ -409,7 +431,7 @@ on:
     branches: [main]
 ```
 
-Next, we supply the [jobs](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobs) in our workflow. Jobs are run in parallel, but you can create [dependencies as needed](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idneeds). Each job _must_ indicate what platform it [runs on](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on). In our case, we only need one job, which we'll run on Ubuntu Linux:
+Next, we supply the [jobs](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobs) in our workflow. Jobs can run in parallel by default, but you can specify [dependencies](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idneeds) between them. Each job _must_ indicate what platform it [runs on](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on). In our case, we only need one job, which we'll run on Ubuntu Linux:
 
 ```yaml
 jobs:
@@ -419,7 +441,7 @@ jobs:
 
 (Only `on` and (for each job) `runs-on` are required in a workflow.)
 
-A job is made of [steps](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idsteps) that run as individual processes (on the same platform) in sequence. Each step is an element in a YAML list. We want to checkout the repo, set up Node, run a clean install via npm, and run our test script, which not only runs the tests themselves but also checks for style and formatting:
+A job is made of [steps](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idsteps) that run as individual processes (on the same platform) in sequence. Each step is an element in a YAML list. We have four steps that (1) checkout the repo, (2) set up node, (3) run an npm clean install, and (4) run our npm test script (which also checks types, style, and formatting):
 
 ```yaml
 steps:
@@ -431,7 +453,7 @@ steps:
   - run: npm test
 ```
 
-The syntax looks a bit odd in the second entry of this list. Each list entry is itself a YAML mapping with keys and values. So, the second entry has the key `uses` and the key `with`. The value associated with `with` is itself a mapping with just one key: `node-version`. A [`uses` value](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsuses) in a step calls on a GitHub Action. Best practice is to give a reasonably specific version of the action to use. A [`run` value](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsrun) in a step is a shell command. We could have had a single step to run both commands instead:
+The syntax of the second list entry may look odd! Remember that a list entry can itself be a YAML mapping with keys and values, and in this list every entry _is_ a YAML mapping. The first entry has just one key (`uses`) with its one associated value (`actions/checkout@v2`). The second entry has the key `uses` and the key `with`. The value associated with `with` is itself a mapping with just one key: `node-version`. A [`uses` value](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsuses) in a step calls on a GitHub Action that wraps up some useful behaviour for a workflow. In this case, the Actions prepare your job's platform for use: checking out your repository and setting up node. We use version 2 of both of these actions; best practice is to give a reasonably specific version of the action to use to avoid unexpected behaviour as the action's implementation evolves. A [`run` value](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsrun) in a step is a shell command. We could have had a single step to run both commands instead of two separate steps by using a [YAML block literal](https://yaml.org/spec/1.2/spec.html#id2760844):
 
 ```yaml
 run: |
@@ -441,7 +463,9 @@ run: |
 
 Our full [`ci.yml` workflow](.github/workflows/ci.yml) is a bit more complex just for fun and is built based on the [Node.js starter workflow template](https://github.com/actions/starter-workflows/blob/main/ci/node.js.yml).
 
-### Questions about CI
+# Unexplained Oddities and Unresolved Thoughts
+
+## Questions about CI
 
 A tenet of CI appears to be [frequent commits to the main code branch](https://en.wikipedia.org/wiki/Continuous_integration#Everyone_commits_to_the_baseline_every_day). That makes sense particularly in an agile framework with its emphasis on working software, and yet... I may have at the end of my work period, for example, only a set of tests. When I submit these, they're going to fail. That's just one version of the larger question about partial progress and how it connects with CI.
 
@@ -451,8 +475,6 @@ What's the answer to this? Is it some combination of:
 - I should use tools/practices that allow me to make my partial work product _work_, e.g., by using `test.skip` in jest?
 - CI is really targeted at particular phases of product development and may not work in the same way at all stages. (E.g., when I'm prototyping, it may not even be meaningful to have a single "product".)
 - This is simply a cost of CI, which can be a negative but also encourages some behaviours with significant advantages.
-
-# Unexplained Oddities and Unresolved Thoughts
 
 ## RESOLVED: Why does `babel` still show in `package-lock.json`?
 
