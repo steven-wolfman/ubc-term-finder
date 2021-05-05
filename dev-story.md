@@ -350,7 +350,7 @@ test("including using the result of 'new Date()' when called with no arguments",
 That test:
 
 - calls `getUbcTerm` with no arguments,
-- uses the spy to confirm that the `Date` constructor was called exactly one time with no arguments, and it successfully returned a value,
+- uses the spy to confirm that the `Date` constructor was called exactly one time ([`.toHaveBeenCalledTimes(1)`](https://jestjs.io/docs/expect#tohavebeencalledtimesnumber)) with no arguments ([`.toHaveBeenCalledWith()`](https://jestjs.io/docs/expect#tohavebeencalledwitharg1-arg2-)), and it successfully returned a value ([`.toHaveReturned()`](https://jestjs.io/docs/expect#tohavereturned)),
 - grabs the Date value returned from that single Date constructor call (which lives in [`.mock.results`](https://jestjs.io/docs/mock-function-api#mockfnmockresults)), and
 - checks that calling `getUbcTerm` with that Date value as an explicit parameter gives the same result as the parameterless call.
 
