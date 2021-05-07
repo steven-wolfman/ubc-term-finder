@@ -454,7 +454,7 @@ steps:
   - run: npm test
 ```
 
-The syntax of the second list entry may look odd! Remember that a list entry can itself be a YAML mapping with keys and values, and in this list every entry _is_ a YAML mapping. The first entry has just one key (`uses`) with its one associated value (`actions/checkout@v2`). The second entry has the key `uses` and the key `with`. The value associated with `with` is itself a mapping with just one key: `node-version`. A [`uses` value](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsuses) in a step calls on a GitHub Action that wraps up some useful behaviour for a workflow. In this case, the Actions prepare your job's platform for use: checking out your repository and setting up node. We use version 2 of both of these actions; best practice is to give a reasonably specific version of the action to use to avoid unexpected behaviour as the action's implementation evolves. A [`run` value](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsrun) in a step is a shell command. We could have had a single step to run both commands instead of two separate steps by using a [YAML block literal](https://yaml.org/spec/1.2/spec.html#id2760844):
+The syntax of the second list entry may look odd! Remember that a list entry can itself be a YAML mapping with keys and values, and in this list every entry _is_ a YAML mapping. The first entry has just one key (`uses`) with its one associated value (`actions/checkout@v2`). The second entry has the key `uses` and the key `with`. The value associated with `with` is itself a mapping with just one key: `node-version`. A [`uses` value](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsuses) in a step calls on a GitHub Action that wraps up some useful behaviour for a workflow. In this case, the Actions prepare our job's platform for use: checking out your repository and setting up node. We use version 2 of both of these actions; best practice is to give a reasonably specific version of the action to use to avoid unexpected behaviour as the action's implementation evolves. A [`run` value](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsrun) in a step is a shell command. We could have had a single step to run both commands instead of two separate steps by using a [YAML block literal](https://yaml.org/spec/1.2/spec.html#id2760844):
 
 ```yaml
 run: |
@@ -505,23 +505,61 @@ If we were to publish, it would be with version 0.0.1 and with the indicated pac
 
 We wanted to ensure that _this file_ wasn't published in our package, but that's taken care of already by our `files` field in `package.json`. Only those specified files and the [ones included by default](https://docs.npmjs.com/cli/v7/commands/npm-publish#files-included-in-package) will be published.
 
-### TODO: getting an npm account (I did that but failed to take notes!)
+### Setting Up an `npmjs` Account
+
+We can publish our npm package in any npm repository, but the most widely used is [`npmjs.com`](https://www.npmjs.com/). To publish our package there, we need an account. Having created one on the website or by running `npm login`, we go to the `Access Tokens` area of our account options and created an automation token. We'll use the automation token to help with publishing our package. If you would rather, you can use the shell command `npm login` to authenticate instead. For help on that command run `npm help login`.
+
+### Using `np` Instead of Managing Publication Yourself
+
+Before we dive into the nitty-gritty of getting publication right, consider using the [`np` utility](https://github.com/sindresorhus/np) instead:
+
+```bash
+npm install --global np
+np
+```
+
+`np` will help you work interactively through the publication process. It looks for issues that we don't even mention below, like looking for unpulled changes to your project.
+
+OK, now to handle it ourselves instead!
 
 ### TODO: `prepublishOnly`
 
-TODO: also review https://github.com/actions/starter-workflows/blob/main/ci/npm-publish.yml. Perhaps we'd be better off doing what it says?
+There may be some steps we use to prepare for publication. In our case, this includes compiling the TypeScript code to JavaScript and building the separate TypeScript definitions file (`*.d.ts`). This is done with a [script in `package.json` named `prepublishOnly`](https://docs.npmjs.com/cli/v7/using-npm/scripts#life-cycle-scripts). (Be aware that [the old `prepublish` script is deprecated](https://docs.npmjs.com/cli/v7/using-npm/scripts#prepare-and-prepublish); to do something before both publication and installation, use a `prepare` script instead.)
 
-There may be some steps we want to do when preparing for publication but not during a standard install. In our case, this includes compiling the TypeScript code to JavaScript and building the separate TypeScript definitions file (`*.d.ts`). This is done with a [script in `package.json` named `prepublishOnly`](https://docs.npmjs.com/cli/v7/using-npm/scripts#life-cycle-scripts). (Be aware that [the old `prepublish` script is deprecated](https://docs.npmjs.com/cli/v7/using-npm/scripts#prepare-and-prepublish); to do something before both publication and installation, use a `prepare` script instead.)
-
-TODO: is this what I really want?
-
-In our case, we want a careful check prior to publication that includes a build. So, we'll do a clean install and run our tests:
+For that compile step, we want at minimum a `prepublishOnly` script like:
 
 ```javascript
-"prepublishOnly": "run-s ?? test"  // TODO: not sure how to do a clean-install in the script!
+"prepublishOnly": "npm run build"
 ```
 
-TODO: Probably we just need to use plain old bash with, e.g., &&. See the little script toward the bottom of https://betterstack.dev/blog/npm-package-best-practices/#heading-publishing-process for an example of a script that may be useful. (Though.. not sure of the value of having `npm run publish` run `npm publish`?)
+We're fond of overkill; so, we'll instead use a script that cleans the folder, runs a clean install, runs tests, and only then builds:
+
+```javascript
+"prepublishOnly": "npm run clean && npm ci && npm test && npm run build"
+```
+
+Even with this, we're still publishing from our local copy. It may be better to publish from our GitHub repository instead. In that case, adapting GitHub's [`npm publish` starter workflow](https://github.com/actions/starter-workflows/blob/main/ci/npm-publish.yml) will help. (Because this is a template rather than a standard workflow, you are best off creating a new action through the GitHub interface and selecting this starter as your template, rather than directly copying the non-standard workflow from that link.)
+
+### Publishing and Versioning
+
+We're finally ready to publish by running `npm publish`.
+
+Later, when we make updates, we'll want to run `npm version` before the next `npm publish`. (npm will refuse to republish to the same version, thankfully!)
+
+For help on versioning, run `npm help version`. Most commonly, we will run one of `npm version major`, `npm version minor`, or `npm version patch` depending on the [type of update we made](https://semver.org/)). This automatically commits to git and adds a version tag. We may want to leave a message in the commit, like: `npm version minor -m "Version %s provides term formatting options"`. The `%s` will be replaced by the version.
+
+We will also want to push both the commit and the tags and (of course!) actually publish. The final sequence of commands looks something like:
+
+```bash
+npm version minor -m "Provide term formatting options"
+git push
+git push --tags
+npm publish
+```
+
+Some of this can also be built into the npm `preversion`, `version`, and `postversion` scripts. See `npm help version` for an example. (The current example pushes the results of building the project to their git repository. We would avoid that behaviour for our package.)
+
+TODO: maybe switch some of this to `prepare` rather than `prepublishOnly`? See https://itnext.io/step-by-step-building-and-publishing-an-npm-typescript-package-44fe7164964c, search for prepublishOnly.
 
 ### TODO: side-effect-free designation?
 
