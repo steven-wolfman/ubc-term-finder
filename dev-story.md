@@ -418,7 +418,7 @@ Here are a few starter workflows of interest to us:
 
 ### Setting Up the Workflow File
 
-GitHub Actions looks for your workflows in `.github/workflows` in files with `.yml` or `.yaml` extensions. We want to create a workflow that runs on pushes and pull requests to the `main` branch. So, we'll start in our `.github/workflows/ci.yml` file with:
+GitHub Actions looks for your workflows in `.github/workflows` in files with `.yml` or `.yaml` extensions. We want to create a workflow that runs on pushes and pull requests to the `main` branch. So, we'll start in our [`.github/workflows/ci.yml` file](.github/workflows/ci.yml) with:
 
 ```yaml
 name: Continuous Integration
