@@ -22,7 +22,6 @@ export interface UbcTerm {
   termNum: 1 | 2;
 }
 
-
 /**
  * Find the UBC term (year, session, term number) of the given date.
  *
@@ -44,21 +43,21 @@ export function getUbcTerm(date: Date = new Date()): UbcTerm {
       return {
         year: date.getFullYear(),
         session: "W",
-        termNum: 2
+        termNum: 2,
       };
     case 4:
     case 5:
       return {
         year: date.getFullYear(),
         session: "S",
-        termNum: 1
+        termNum: 1,
       };
     case 6:
     case 7:
       return {
         year: date.getFullYear(),
         session: "S",
-        termNum: 2
+        termNum: 2,
       };
     case 8:
     case 9:
@@ -67,9 +66,11 @@ export function getUbcTerm(date: Date = new Date()): UbcTerm {
       return {
         year: date.getFullYear(),
         session: "W",
-        termNum: 1
+        termNum: 1,
       };
     default:
-      throw new Error(`received month value "${date.getMonth()}", which outside the allowable range [0, 11]`);
+      throw new Error(
+        `received month value "${date.getMonth()}", which outside the allowable range [0, 11]`
+      );
   }
 }

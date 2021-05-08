@@ -48,28 +48,35 @@ describe("the getUbcTerm function", () => {
   );
   describe("should use the current time by default", () => {
     describe("tested via mocking, which is probably inferior to using jest.setSystemTime", () => {
-      let dateSpy: jest.SpyInstance;
+      let dateMock: jest.SpyInstance;
+      let originalDate: DateConstructor;
       beforeAll(() => {
-        dateSpy = jest.spyOn(global, "Date");
+        originalDate = global.Date;
+        dateMock = jest.fn(() => new originalDate());
+
+        // We can either set up the remaining properties of Date or command Typescript 
+        // to ignore the type issues by casting to DateConstructor via unknown. For a full
+        // solution, see: https://github.com/facebook/jest/issues/9185#issuecomment-560152566
+        global.Date = dateMock as unknown as DateConstructor;
       });
       beforeEach(() => {
         // Reset counters.
-        dateSpy.mockClear();
+        dateMock.mockClear();
       });
       afterAll(() => {
         // Return Date to its original functionality.
-        dateSpy.mockRestore();
+        global.Date = originalDate;
       });
       test("including using the result of 'new Date()' when called with no arguments", () => {
         const result = module.getUbcTerm();
 
         // new Date() should be called exactly once, with no arguments:
-        expect(dateSpy).toHaveBeenCalledTimes(1);
-        expect(dateSpy).toHaveBeenCalledWith();
-        expect(dateSpy).toHaveReturned();
+        expect(dateMock).toHaveBeenCalledTimes(1);
+        expect(dateMock).toHaveBeenCalledWith();
+        expect(dateMock).toHaveReturned();
 
         // And the end result is the same as getUbcTerm with the explicit date
-        const date = dateSpy.mock.results[0].value;
+        const date = dateMock.mock.results[0].value;
         expect(result).toEqual(module.getUbcTerm(date));
       });
 
@@ -90,7 +97,7 @@ describe("the getUbcTerm function", () => {
       `(
         "producing the appropriate term: $ubcterm.session$ubcterm.termNum $point of the term ($date)",
         ({ ubcterm, date }) => {
-          dateSpy.mockImplementationOnce(() => {
+          dateMock.mockImplementationOnce(() => {
             return date;
           });
           expect(module.getUbcTerm()).toEqual(ubcterm);

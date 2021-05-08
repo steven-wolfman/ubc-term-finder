@@ -294,7 +294,11 @@ To enforce that this is working, we added a test that checks that `process.env` 
 
 ##### Time Is a Mess
 
-Time is so complicated that [Jest has specific support for working with time](https://jestjs.io/docs/timer-mocks). Since we're interested in `Date` and using Jest before version 27, we need to [use "modern" timers](https://jestjs.io/docs/jest-object#jestusefaketimersimplementation-modern--legacy). Using that, we can make "now" whatever we want. Alternatively, we could use jest's [`spyon` function](https://jestjs.io/docs/jest-object#jestspyonobject-methodname) with [`global` and `Date` as the parameters](https://stackoverflow.com/questions/28504545/how-to-mock-a-constructor-like-new-date/57599680#57599680) in order to mock `Date` and inspect how it's used. ([`global`](https://nodejs.org/api/globals.html#globals_global) is a Node.js-specific variable storing an object representing the global scope in the browser.) The Jest timer solution is probably **better** than the mocking one, but since we're trying to learn, we use both!
+Time is so complicated that [Jest has specific support for working with time](https://jestjs.io/docs/timer-mocks). Since we're interested in `Date` and using Jest before version 27, we need to [use "modern" timers](https://jestjs.io/docs/jest-object#jestusefaketimersimplementation-modern--legacy). Using that, we can make "now" whatever we want. Alternatively, we could use jest's [mock functions](...) in order to mock `Date` and inspect how it's used.
+
+([`global`](https://nodejs.org/api/globals.html#globals_global) is a Node.js-specific variable storing an object representing the global scope in the browser.)
+
+The Jest timer solution is probably **better** than the mocking one, but since we're trying to learn, we use both!
 
 Testing using fake timers turns out to be straightforward. We use a tabular `test.each` similar to the one described above to make 12 individual test cases with one compact, parameterized test function. That test simply sets the system time so that "now" is the time we want, calls `getUbcTerm` with no parameters and checks its result, and finally turns real timers back on again to avoid ruining future tests:
 
@@ -306,7 +310,7 @@ Testing using fake timers turns out to be straightforward. We use a tabular `tes
 };
 ```
 
-Mocking, on the other hand, is complicated!
+Mocking, on the other hand, is complicated! We ended up following [Yacine Hmito's advice on mocking `Date`](https://github.com/facebook/jest/issues/9185#issuecomment-560152566). We simplified that example substantially since we only wanted to handle calling the zero-argument constructor.
 
 Here's the setup for our spy-based testing, which we explain below:
 
