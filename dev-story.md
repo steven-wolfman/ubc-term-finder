@@ -354,7 +354,7 @@ That test:
 - grabs the Date value returned from that single Date constructor call (which lives in [`.mock.results`](https://jestjs.io/docs/mock-function-api#mockfnmockresults)), and
 - checks that calling `getUbcTerm` with that Date value as an explicit parameter gives the same result as the parameterless call.
 
-Then, we create our usual set of 12 tests with a tabular `test.each` call. In the parameterized test within the `test.each`, we receive the date for this test and the UBC term expected as a result for that date. We call [`mockImplementationOnce`](https://jestjs.io/docs/mock-function-api#mockfnmockimplementationoncefn) to make the `Date` constructor return what _we_ want and then just test that calling `getUbcTerm` with no parameters gives us our expected result:
+Then, we create our usual set of 12 tests with a tabular `test.each` call. In the parameterized test within the `test.each`, we receive the date for this test and the UBC term expected as a result for that date. We call [`mockImplementationOnce`](https://jestjs.io/docs/mock-function-api#mockfnmockimplementationoncefn) to make the `Date` constructor return what _we_ want. Finally, we test that calling `getUbcTerm` with no parameters gives us the expected result:
 
 ```typescript
 ({ ubcterm, date }) => {
