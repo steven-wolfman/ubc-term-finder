@@ -461,6 +461,10 @@ run: |
 
 Our full [`ci.yml` workflow](.github/workflows/ci.yml) is a bit more complex just for fun and is built based on the [Node.js starter workflow template](https://github.com/actions/starter-workflows/blob/main/ci/node.js.yml).
 
+## Basic Implementation
+
+We're finally ready to write some code! For our basic implementation, we will simply check the month on the Date and choose the UBC term on its basis. Here's our implementation:
+
 # Unexplained Oddities and Unresolved Thoughts
 
 ## Questions about CI
