@@ -383,11 +383,11 @@ All the tools, including GitHub Actions, allow you to hook an event relevant to 
 
 For a quick start, check out the [GitHub Actions cheat sheet](https://github.github.io/actions-cheat-sheet/actions-cheat-sheet.html). For details, check out the [GitHub Actions reference](https://docs.github.com/en/actions/reference). You may find it easier to read the reference with some examples of the language it uses to describe its YAML syntax:
 
-- `on.<push|pull_request>.<branches|tags>` means:
+- [`on.<push|pull_request>.<branches|tags>`](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#onpushpull_requestbranchestags) means:
   - in the `on:` section (i.e., the value associated with the `on` key) of your YAML document,
   - in the `push:` or `pull_request:` subsection,
   - the `branches:` or `tags:` subsubsection.
-- `jobs.<job_id>.steps[*].name` means
+- [`jobs.<job_id>.steps[*].name`](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsname) means
   - in the `jobs:` section,
   - in the subsection with the particular name to replace _job_id_ that you chose,
   - in the `steps:` subsubsection,
