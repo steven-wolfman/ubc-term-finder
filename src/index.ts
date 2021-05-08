@@ -71,7 +71,7 @@ export function getUbcTerm(date: Date = new Date()): UbcTerm {
       };
     default:
       throw new Error(
-        `received month value "${date.getMonth()}", which outside the allowable range [0, 11]`
+        `received month value "${date.getMonth()}", which is outside the allowable range [0, 11]`
       );
   }
 }

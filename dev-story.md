@@ -473,7 +473,36 @@ Our full [`ci.yml` workflow](.github/workflows/ci.yml) is a bit more complex jus
 
 ## Basic Implementation
 
-We're finally ready to write some code! For our basic implementation, we will simply check the month on the Date and choose the UBC term on its basis. Here's our implementation:
+We're finally ready to write some code! For our basic implementation, we will simply check the month on the Date and choose the UBC term on its basis. `Date.getMonth` returns a zero-based month; so, January is month 0 and December is month 11. Given that, here's our implementation:
+
+```typescript
+switch (date.getMonth()) {
+  case 0:
+  case 1:
+  case 2:
+  case 3:
+    return { year: date.getFullYear() - 1, session: "W", termNum: 2 };
+  case 4:
+  case 5:
+    return { year: date.getFullYear(), session: "S", termNum: 1 };
+  case 6:
+  case 7:
+    return { year: date.getFullYear(), session: "S", termNum: 2 };
+  case 8:
+  case 9:
+  case 10:
+  case 11:
+    return { year: date.getFullYear(), session: "W", termNum: 1 };
+  default:
+    throw new Error(
+      `received month value "${date.getMonth()}", which is outside the allowable range [0, 11]`
+    );
+}
+```
+
+The only remaining interesting point is that the January through April case subtracts one from the year since, for example, at UBC the 2020W2 term occurs in Jan&ndash;Apr of 2021.
+
+That's as far as we'll go in our implementation! A more advanced implementation could be more clever about timezones, consider UBC's specific term boundaries currently, look back at UBC records to inspect old boundaries, and perhaps handle special term designations like two-term courses. All of that sounds like.. um.. fun, but it won't help us learn to make a simple TypeScript npm package!
 
 # Unexplained Oddities and Unresolved Thoughts
 
