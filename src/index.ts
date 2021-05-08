@@ -41,7 +41,8 @@ export function getUbcTerm(date: Date = new Date()): UbcTerm {
     case 2:
     case 3:
       return {
-        year: date.getFullYear(),
+        // At UBC, 2020W2 is in the calendar year 2021.
+        year: date.getFullYear() - 1,
         session: "W",
         termNum: 2,
       };

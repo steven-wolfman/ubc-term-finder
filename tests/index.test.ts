@@ -54,10 +54,10 @@ describe("the getUbcTerm function", () => {
         originalDate = global.Date;
         dateSpy = jest.fn(() => new originalDate());
 
-        // We can either set up the remaining properties of Date or command Typescript 
+        // We can either set up the remaining properties of Date or command Typescript
         // to ignore the type issues by casting to DateConstructor via unknown. For a full
         // solution, see: https://github.com/facebook/jest/issues/9185#issuecomment-560152566
-        global.Date = dateSpy as unknown as DateConstructor;
+        global.Date = (dateSpy as unknown) as DateConstructor;
       });
       beforeEach(() => {
         // Reset counters.
