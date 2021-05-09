@@ -49,22 +49,9 @@ Now everything is installed, but mostly still needs to be configured:
 1. [Typescript config](https://www.typescriptlang.org/docs/handbook/tsconfig-json.html): Create/edit `tsconfig.json`. We used a slightly edited version of the command from the [stemmler](https://khalilstemmler.com/blogs/typescript/node-starter-project/) tutorial with `--allowJs` set to `false`:
 
    ```bash
-   npx tsc --init --rootDir src --outDir build --esModuleInterop --resolveJsonModule \
-           --lib es6 --module commonjs --allowJs false --noImplicitAny true
+   npx tsc --init --rootDir src --outDir build --declaration --esModuleInterop --lib es6 \
+           --module commonjs --noImplicitAny true --resolveJsonModule --target es3
    ```
-
-    <!-- Then edited that to modify/add these options from the typescript config notes for Babel:
-    ```json
-    {
-      "compilerOptions": {
-        // Ensure that .d.ts files are created by tsc, but not .js files
-        "declaration": true,
-        "emitDeclarationOnly": true,
-        // Ensure that Babel can safely transpile files in the TypeScript project
-        "isolatedModules": true
-      }
-    }
-    ``` -->
 
    We also added include/exclude options to this:
 
@@ -549,6 +536,14 @@ For our `prepublishOnly` step, we'll want to at least run our tests:
 
 There are pitfalls not checked by these scripts, such as ensuring that our git working directory is clean. Again, the `np` utility can help you avoid these pitfalls!
 
+### Testing Your Package Locally
+
+We'll want to test that our package works before publishing it. [npm's advice on local testing](https://docs.npmjs.com/cli/v7/using-npm/developers#before-publishing-make-sure-your-package-installs-and-works) may work. However, we're publishing far less than actually appears in our folder.
+
+Therefore, we'll test in three steps:
+
+1. Run `npm pack`
+
 ### Publishing and Versioning
 
 We're finally ready to publish by running `npm publish`.
@@ -589,7 +584,7 @@ npm version minor -m "Provide term formatting options"
 npm publish
 ```
 
-You may want to streamline your scripts a little more than we did to make this sequence more efficient. For example, we run `npm test` in `npm version` and also in `npm publish` (via the `prepublishOnly` script). If your tests are long-running, that may be painful!
+You may want to streamline your scripts a little more than we did to make this sequence more efficient. For example, we run `npm test` in `npm version` and also in `npm publish` (via the `prepublishOnly` script). We also run testing as part of our continuous integration, which will be fired when we push to `main` on GitHub. If your tests are long-running, that may be painful!
 
 ### TODO: side-effect-free designation?
 
