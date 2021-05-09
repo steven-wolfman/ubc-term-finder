@@ -518,9 +518,7 @@ npm install --global np
 np
 ```
 
-`np` will help you work interactively through the publication process. It looks for issues that we don't even mention below, like looking for unpulled changes to your project.
-
-OK, now to handle it ourselves instead!
+`np` will help you work interactively through the publication process, based on your local files. It looks for issues that we don't even mention below, like checking for unpulled changes to your project.
 
 ### TODO: `prepublishOnly`
 
@@ -568,6 +566,12 @@ https://betterstack.dev/blog/npm-package-best-practices/#heading-side-effects
 ### TODO: we have no install dependencies, but if you do: shrink-wrapping?
 
 https://betterstack.dev/blog/npm-package-best-practices/#heading-locking-dependencies
+
+### Using GitHub Actions to Publish from GitHub
+
+You may not want to publish locally at all. The [GitHub starter workflow for publishing an npm package](https://github.com/actions/starter-workflows/blob/main/ci/npm-publish.yml) can help you automatically publish your package as part of your CI/CD workflow whenever you push a new release to the GitHub server. (This is a template workflow, _not_ a standard workflow. So, either create a new Action in GitHub and choose this template as your starting point or be careful as you adapt the workflow directly. You can also review [GitHub's guide to publishing Node packages](https://help.github.com/actions/language-and-framework-guides/publishing-nodejs-packages).)
+
+Unlike `np`, howeever, this is not a replacement for configuring your own `npm` scripts for installation, testing, preparation, and publication of your package!
 
 # Unexplained Oddities and Unresolved Thoughts
 
