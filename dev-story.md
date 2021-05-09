@@ -308,7 +308,7 @@ Testing using fake timers turns out to be straightforward. We use a tabular `tes
 };
 ```
 
-Mocking, on the other hand, is complicated! We ended up following [Yacine Hmito's advice on mocking `Date`](https://github.com/facebook/jest/issues/9185#issuecomment-560152566). We simplified that example substantially since we only wanted to handle calling the zero-argument constructor. (We would have preferred to use [jest's `spyOn` method](https://jestjs.io/docs/jest-object#jestspyonobject-methodname) over this solution, but both the fact that `Date` is in the global scope and that we want to mock a constructor make this challenging.)
+Mocking, on the other hand, is complicated! We ended up following [Yacine Hmito's advice on mocking `Date`](https://github.com/facebook/jest/issues/9185#issuecomment-560152566). We simplified that example substantially since we only wanted to handle calling the zero-argument constructor. (We would have preferred to use [jest's `spyOn` method](https://jestjs.io/docs/jest-object#jestspyonobject-methodname), and [using `spyOn` _is_ possible](https://stackoverflow.com/questions/28504545/how-to-mock-a-constructor-like-new-date/57599680#57599680). However, because `Date` is in the global scope and we are mocking a constructor, that solution ends up dropping most of the advantages of `spyOn` versus standard mock functions.)
 
 Here's the setup for our mock-based testing, which we explain below:
 
