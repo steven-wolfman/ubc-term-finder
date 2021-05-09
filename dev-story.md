@@ -520,33 +520,42 @@ np
 
 `np` will help you work interactively through the publication process, based on your local files. It looks for issues that we don't even mention below, like checking for unpulled changes to your project.
 
-### TODO: `prepublishOnly`
+### `prepare` and `prepublishOnly`
 
-There may be some steps we use to prepare for publication. In our case, this includes compiling the TypeScript code to JavaScript and building the separate TypeScript definitions file (`*.d.ts`). This is done with a [script in `package.json` named `prepublishOnly`](https://docs.npmjs.com/cli/v7/using-npm/scripts#life-cycle-scripts). (Be aware that [the old `prepublish` script is deprecated](https://docs.npmjs.com/cli/v7/using-npm/scripts#prepare-and-prepublish); to do something before both publication and installation, use a `prepare` script instead.)
+There may be some steps we use to prepare for publication. In our case, this includes compiling the TypeScript code to JavaScript and building the separate TypeScript definitions file (`*.d.ts`). There are a [collection of useful hooks](https://docs.npmjs.com/cli/v7/using-npm/scripts#life-cycle-scripts) for this in your `package.json` scripts. We'll be most interested in:
 
-For that compile step, we want at minimum a `prepublishOnly` script like:
+- `prepare`: Runs before packing or publishing. Note that this will run when you use `npm install` on this project. It does _not_ run when you install this project from another project, i.e., when your package gets used.
+- `prepublishOnly`: Runs only before publication, on `npm publish` but not other times when `prepare` runs, like `npm pack`. `prepublishOnly` runs before `prepare` on `npm publish`. (Be aware that [the old `prepublish` script is deprecated](https://docs.npmjs.com/cli/v7/using-npm/scripts#prepare-and-prepublish).)
+
+We probably want to compile in our `prepare` step. Among other things, that's useful for local testing, which uses `npm pack` but not `npm publish`.
+
+For that compile step, we want at minimum a `prepare` script like:
 
 ```javascript
-"prepublishOnly": "npm run build"
+"prepare": "npm run build"
 ```
 
-We're fond of overkill; so, we'll instead use a script that cleans the folder, runs a clean install, runs tests, and only then builds:
+(We're fond of overkill and so tempted to do more steps like clean the folder, run a clean install, run tests, and only then build. However, this runs on install; so, some of these would likely be very bad ideas, particularly the clean install!)
+
+For our `prepublishOnly` step, we'll want to at least run our tests:
 
 ```javascript
-"prepublishOnly": "npm run clean && npm ci && npm test && npm run build"
+"prepublishOnly": "npm run clean && npm test"
 ```
 
-Even with this, we're still publishing from our local copy. It may be better to publish from our GitHub repository instead. In that case, adapting GitHub's [`npm publish` starter workflow](https://github.com/actions/starter-workflows/blob/main/ci/npm-publish.yml) will help. (Because this is a template rather than a standard workflow, you are best off creating a new action through the GitHub interface and selecting this starter as your template, rather than directly copying the non-standard workflow from that link.)
+There are pitfalls not checked by these scripts, such as ensuring that our git working directory is clean. Again, the `np` utility can help you avoid these pitfalls!
 
 ### Publishing and Versioning
 
 We're finally ready to publish by running `npm publish`.
 
-Later, when we make updates, we'll want to run `npm version` before the next `npm publish`. (npm will refuse to republish to the same version, thankfully!)
+Later, when we make updates, we'll want to run [`npm version`](https://docs.npmjs.com/cli/v7/commands/npm-version) before the next `npm publish`. (npm will refuse to republish to the same version to the same repository, thankfully!)
 
 For help on versioning, run `npm help version`. Most commonly, we will run one of `npm version major`, `npm version minor`, or `npm version patch` depending on the [type of update we made](https://semver.org/)). This automatically commits to git and adds a version tag. We may want to leave a message in the commit, like: `npm version minor -m "Version %s provides term formatting options"`. The `%s` will be replaced by the version.
 
-We will also want to push both the commit and the tags and (of course!) actually publish. The final sequence of commands looks something like:
+Interestingly, unlike `npm publish`, `npm version` checks that the git working directory is clean before proceeding. So, we don't need the `np` utility to remind us of that particular issue at this point!
+
+We will also want to push the commit, push the tags (which contain the version number), and of course actually publish! The final sequence of commands looks something like this, depending on what your new version does:
 
 ```bash
 npm version minor -m "Provide term formatting options"
@@ -557,7 +566,26 @@ npm publish
 
 Some of this can also be built into the npm `preversion`, `version`, and `postversion` scripts. See `npm help version` for an example. (The current example pushes the results of building the project to their git repository. We would avoid that behaviour for our package.)
 
-TODO: maybe switch some of this to `prepare` rather than `prepublishOnly`? See https://itnext.io/step-by-step-building-and-publishing-an-npm-typescript-package-44fe7164964c, search for prepublishOnly.
+We'll go ahead and update our `package.json` similarly:
+
+```javascript
+"scripts": {
+  "preversion": "npm test",
+  "version": "npm run format && git add .",
+  "postversion": "git push && git push --tags"
+}
+```
+
+Unlike the sample from `npm help version`, our `version` script does not run the build script. (There's nothing in `build` that we need during versioning, and `prepare` already runs our build script prior to publishing.) Instead, our script formats our files to patch any formatting issues before versioning. Note that to keep the working directory clean, we need to explicitly add the changes in git.
+
+At this point, to publish a new version, we only need to execute commands like:
+
+```bash
+npm version minor -m "Provide term formatting options"
+npm publish
+```
+
+You may want to streamline your scripts a little more than we did to make this sequence more efficient. For example, we run `npm test` in `npm version` and also in `npm publish` (via the `prepublishOnly` script). If your tests are long-running, that may be painful!
 
 ### TODO: side-effect-free designation?
 
