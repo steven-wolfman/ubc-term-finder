@@ -569,9 +569,9 @@ https://betterstack.dev/blog/npm-package-best-practices/#heading-locking-depende
 
 ### Using GitHub Actions to Publish from GitHub
 
-You may not want to publish locally at all. The [GitHub starter workflow for publishing an npm package](https://github.com/actions/starter-workflows/blob/main/ci/npm-publish.yml) can help you automatically publish your package as part of your CI/CD workflow whenever you push a new release to the GitHub server. (This is a template workflow, _not_ a standard workflow. So, either create a new Action in GitHub and choose this template as your starting point or be careful as you adapt the workflow directly. You can also review [GitHub's guide to publishing Node packages](https://help.github.com/actions/language-and-framework-guides/publishing-nodejs-packages).)
+You may not want to publish locally at all. The [GitHub starter workflow for publishing an npm package](https://github.com/actions/starter-workflows/blob/main/ci/npm-publish.yml) can help you automatically publish your package as part of your CI/CD workflow whenever you create a new release on the GitHub server. (This is a template workflow, _not_ a standard workflow. So, either create a new Action in GitHub and choose this template as your starting point or be careful as you adapt the workflow directly. You can also review [GitHub's guide to publishing Node packages](https://help.github.com/actions/language-and-framework-guides/publishing-nodejs-packages).)
 
-Unlike `np`, howeever, this is not a replacement for configuring your own `npm` scripts for installation, testing, preparation, and publication of your package!
+Unlike `np`, however, this is not a replacement for configuring your own `npm` scripts for installation, testing, versioning, preparation, and publication of your package! In fact, [releasing is yet another process](https://docs.github.com/en/github/administering-a-repository/about-releases) you may want to learn about.
 
 # Unexplained Oddities and Unresolved Thoughts
 
