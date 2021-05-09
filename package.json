@@ -21,7 +21,11 @@
     "format": "prettier --ignore-path .gitignore --write \"**/*.{js,ts,tsx}\"",
     "lint": "eslint .",
     "test:plain": "jest",
-    "prepublishOnly": "npm run clean && npm ci && npm test && npm run build"
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test",
+    "preversion": "npm test",
+    "version": "npm run format && git add .",
+    "postversion": "git push && git push --tags"
   },
   "repository": {
     "type": "git",

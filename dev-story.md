@@ -518,7 +518,11 @@ npm install --global np
 np
 ```
 
-`np` will help you work interactively through the publication process, based on your local files. It looks for issues that we don't even mention below, like checking for unpulled changes to your project.
+`np` will help you work interactively through the publication process, based on your local files. It looks for important issues like:
+
+- ensuring your git working directory is clean
+- ensuring you are in the branch you release from
+- many more that we don't even mention below!
 
 ### `prepare` and `prepublishOnly`
 
@@ -553,7 +557,7 @@ Later, when we make updates, we'll want to run [`npm version`](https://docs.npmj
 
 For help on versioning, run `npm help version`. Most commonly, we will run one of `npm version major`, `npm version minor`, or `npm version patch` depending on the [type of update we made](https://semver.org/)). This automatically commits to git and adds a version tag. We may want to leave a message in the commit, like: `npm version minor -m "Version %s provides term formatting options"`. The `%s` will be replaced by the version.
 
-Interestingly, unlike `npm publish`, `npm version` checks that the git working directory is clean before proceeding. So, we don't need the `np` utility to remind us of that particular issue at this point!
+Interestingly, unlike `npm publish`, `npm version` checks that the git working directory is clean before proceeding. So, we don't need the `np` utility to remind us of that particular issue at this point! (But we can still make _many_ other mistakes like not being on our `main` branch!)
 
 We will also want to push the commit, push the tags (which contain the version number), and of course actually publish! The final sequence of commands looks something like this, depending on what your new version does:
 
