@@ -294,7 +294,7 @@ To enforce that this is working, we added a test that checks that `process.env` 
 
 ##### Time Is a Mess
 
-Time is so complicated that [Jest has specific support for working with time](https://jestjs.io/docs/timer-mocks). Since we're interested in `Date` and using Jest before version 27, we need to [use "modern" timers](https://jestjs.io/docs/jest-object#jestusefaketimersimplementation-modern--legacy). Using that, we can make "now" whatever we want. Alternatively, we could use jest's [mock functions](...) in order to mock `Date` and inspect how it's used.
+Time is so complicated that [Jest has specific support for working with time](https://jestjs.io/docs/timer-mocks). Since we're interested in `Date` and using Jest before version 27, we need to [use "modern" timers](https://jestjs.io/docs/jest-object#jestusefaketimersimplementation-modern--legacy). Using that, we can make "now" whatever we want. Alternatively, we could use jest's [mock functions](https://jestjs.io/docs/mock-functions) in order to mock `Date` and inspect how it's used.
 
 The Jest timer solution is probably **better** than the mocking one, but since we're trying to learn, we use both!
 
