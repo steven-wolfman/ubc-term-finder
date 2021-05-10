@@ -123,7 +123,7 @@ Now everything is installed, but mostly still needs to be configured:
    };
    ```
 
-   We think the `overrides` rule above does a good job informing `eslint` about the `jest` environment (so you don't get `'describe' is not defined` style errors) and `jest`-specific rules. Alternatively, you can add another `.eslintrc.js` file in the `tests` folder or specify `/* eslint-env jest */` at the top of each test file (though in that case, you'll still want the `extends`/`plugins` options specific to `jest`).
+   We think the `overrides` rule above does a good job informing `eslint` about the `jest` environment (so you don't get `'describe' is not defined` style errors) and `jest`-specific rules. Alternatively, you can add another `.eslintrc.js` file in the `tests` directory or specify `/* eslint-env jest */` at the top of each test file (though in that case, you'll still want the `extends`/`plugins` options specific to `jest`).
 
 4. Lots of scripts need to be configured in `package.json` (and we haven't even gotten to [publishing scripts](https://docs.npmjs.com/cli/v7/using-npm/scripts#life-cycle-scripts)!). Some of this is really about configuration of tools described elsewhere, but it seemed valuable to wrap up in one place. To make it easier to run the scripts, we ran `npm install npm-run-all del-cli--save-dev` (for [`run-all`](https://www.npmjs.com/package/npm-run-all) and [`del-cli`](https://www.npmjs.com/package/del-cli)), but this could be replaced by tweaks like `npm run script1 && npm run script 2 && ...` for `run-all`. Much of this section is based on the [`react-svg`](https://github.com/tanem/react-svg) project as a working example.
    ```json
@@ -182,7 +182,7 @@ The actual code has plenty of JSDoc comments to give users information about the
 
 #### Jest Tests
 
-We set up our configuration so that Jest test files can be in the `tests` folder under our project root or in [any of the default places](https://jestjs.io/docs/configuration#testmatch-arraystring): under any `__tests__` subfolder or named ending in `.spec.ts`, `.test.ts` or the like (e.g., `.test.jsx` for a [JSX file](https://reactjs.org/docs/introducing-jsx.html)). For now, we're testing in `tests/index.test.ts`, but we might be better off testing locally alongside our source so that imports in the tests don't get complicated.
+We set up our configuration so that Jest test files can be in the `tests` directory under our project root or in [any of the default places](https://jestjs.io/docs/configuration#testmatch-arraystring): under any `__tests__` subdirectory or named ending in `.spec.ts`, `.test.ts` or the like (e.g., `.test.jsx` for a [JSX file](https://reactjs.org/docs/introducing-jsx.html)). For now, we're testing in `tests/index.test.ts`, but we might be better off testing locally alongside our source so that imports in the tests don't get complicated.
 
 Jest automatically makes available various utility functions and the [`jest` object](https://jestjs.io/docs/jest-object). So, the backbone of our test file is:
 
@@ -526,7 +526,7 @@ For that compile step, we want at minimum a `prepare` script like:
 "prepare": "npm run build"
 ```
 
-(We're fond of overkill and so tempted to do more steps like clean the folder, run a clean install, run tests, and only then build. However, this runs on install; so, some of these would likely be very bad ideas, particularly the clean install!)
+(We're fond of overkill and so tempted to do more steps like clean the project directory, run a clean install, run tests, and only then build. However, this runs on install; so, some of these would likely be very bad ideas, particularly the clean install!)
 
 For our `prepublishOnly` step, we'll want to at least run our tests:
 
@@ -538,11 +538,27 @@ There are pitfalls not checked by these scripts, such as ensuring that our git w
 
 ### Testing Your Package Locally
 
-We'll want to test that our package works before publishing it. [npm's advice on local testing](https://docs.npmjs.com/cli/v7/using-npm/developers#before-publishing-make-sure-your-package-installs-and-works) may work. However, we're publishing far less than actually appears in our folder.
+We'll want to test that our package works before publishing it. [npm's advice on local testing](https://docs.npmjs.com/cli/v7/using-npm/developers#before-publishing-make-sure-your-package-installs-and-works) may work. However, that tests on the contents of your project directory. We're publishing far less than actually appears in our directory and would like to test what's actually published.
 
-Therefore, we'll test in three steps:
+We set up another, empty directory to test our package.
 
-1. Run `npm pack`
+So, for our local package testing, we do the following at the terminal:
+
+1. From our project directory, run `npm pack`. On success, that gives us a [tarball](<https://en.wikipedia.org/wiki/Tar_(computing)>) containing our actual package. (We added a line to our `.gitignore` so this file will not be committed: `ubc-term-finder-*.tgz`.) We take a note of the path to this file, including the name of the tarball itself; we'll refer to it below as `LOCAL_PACKAGE_PATH`.
+2. Change into your package testing directory and run `npm install LOCAL_PACKAGE_PATH`. This installs our package based on the tarball. We can inspect it in the `node_modules/ubc-term-finder` directory.
+3. Test our package. We can do this directly in node:
+
+   ```bash
+   ~/play/temp$ node
+   Welcome to Node.js v15.14.0.
+   Type ".help" for more information.
+   > { getUbcTerm } = require('ubc-term-finder')
+   { __esModule: true, getUbcTerm: [Function: getUbcTerm] }
+   > getUbcTerm(new Date())
+   { year: 2021, session: 'S', termNum: 1 }
+   ```
+
+   Or we can create a small JavaScript or TypeScript file and ensure we can import and use our package.
 
 ### Publishing and Versioning
 
