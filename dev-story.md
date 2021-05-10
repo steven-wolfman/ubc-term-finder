@@ -453,13 +453,13 @@ Our full [`ci.yml` workflow](.github/workflows/ci.yml) is a bit more complex jus
 
 ## Publishing an npm Package
 
-[npm](https://www.npmjs.com/) maintains a repository of packages that are easy to install and use. We want to make our package available for others to use there. We've already used [`npm init`](https://docs.npmjs.com/cli/v7/commands/npm-init) to configure many elements relevant to `npm` package publication in [`package.json`](package.json) (the project name/description, which files to include, the entry point to the package, etc.), but we just used `1.0.0` as the version. According to semantic versioning ([semver](https://semver.org/)), that's fine, but it does mean we should have a reasonably stable public API. Since we may not be there yet, we'll instead start with version `0.0.1` in `package.json`:
+[npm](https://www.npmjs.com/) maintains a repository of packages that are easy to install and use. We want to make our package available there. We've already used [`npm init`](https://docs.npmjs.com/cli/v7/commands/npm-init) to configure many elements relevant to npm package publication in [`package.json`](package.json), including the project name/description, which files to include, and the entry point to the package. However, we used `1.0.0` as the version. According to semantic versioning ([semver](https://semver.org/)), that's fine, but it does mean we should have a reasonably stable public API. Since we may not be there yet, we'll instead start with version `0.0.1` in `package.json`:
 
 ```javascript
 "version": "0.0.1",
 ```
 
-That version format is `MAJOR.MINOR.PATCH`. At major versions 1 and on: a patch is a backwards-compatible bug fix; a minor version change is a backwards-compatible functionality change; and a major version change can break backwards compatibility. semver specifies that [anything can change at any time in major version 0](https://semver.org/#spec-item-4), but it may be better for [npm's caret (^) syntax](https://github.com/npm/node-semver#caret-ranges-123-025-004) to limit breaking API changes to the minor version number.
+That version format is `MAJOR.MINOR.PATCH`. At major versions 1 and on: a patch is a backwards-compatible bug fix; a minor version change is a backwards-compatible functionality change; and a major version change can break backwards compatibility. Semver specifies that [anything can change at any time in major version 0](https://semver.org/#spec-item-4), but it may be better for [npm's caret (^) syntax](https://github.com/npm/node-semver#caret-ranges-123-025-004) to limit breaking API changes to the minor version number.
 
 ### Checking Status
 
@@ -486,9 +486,11 @@ npm notice
 + ubc-term-finder@0.0.1
 ```
 
-TODO: update that text above once we've fast-forwarded to the current main branch after pending PRs are completed.
-
 If we were to publish, it would be with version 0.0.1 and with the indicated package contents. Notice that the package will be just a few kilobytes (and usable with only those few kilobytes, since its only dependencies are for development), not the 200 megabytes it takes up installed on disk at this point!
+
+(Also notice that we're missing our TypeScript type declarations, which should be in the file `build/index.t.js`! Based on this dry-run, we went back and fixed our `tsconfig.json` file. You won't need to do that, since we also fixed our setup instructions for TypeScript; that way our TypeScript writeup makes it looks like we could never make a mistake! Then, we told you we made a mistake. Oops. Unread this paragraph.)
+
+TODO: continue streamlining from here.
 
 We wanted to ensure that _this file_ wasn't published in our package, but that's taken care of already by our `files` field in `package.json`. Only those specified files and the [ones included by default](https://docs.npmjs.com/cli/v7/commands/npm-publish#files-included-in-package) will be published.
 
