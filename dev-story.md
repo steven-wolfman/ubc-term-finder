@@ -602,13 +602,11 @@ npm publish
 
 You may want to streamline your scripts a little more than we did to make this sequence more efficient. For example, we run `npm test` in `npm version` and also in `npm publish` (via the `prepublishOnly` script). We also run testing as part of our continuous integration, which will be fired when we push to `main` on GitHub. If your tests are long-running, that may be painful!
 
-### TODO: side-effect-free designation?
+### `sideEffects` in `package.json` for Tree Shaking
 
-https://betterstack.dev/blog/npm-package-best-practices/#heading-side-effects
+[Tree Shaking](https://en.wikipedia.org/wiki/Tree_shaking) is a technique for including only live (possibly used) code when publishing it. If our package is used from other packages, it could be eliminated due to tree shaking (if the analysis finds it cannot be called in the context in which the other package is used) or portions of our own package and its dependencies could be eliminated for the same reason.
 
-### TODO: we have no install dependencies, but if you do: shrink-wrapping?
-
-https://betterstack.dev/blog/npm-package-best-practices/#heading-locking-dependencies
+To make this work better, it may be helpful to add `"sideEffects": false` to `package.json`. We'll skip that for our package, but see [BetterStack's discussion of `sideEffects`](https://betterstack.dev/blog/npm-package-best-practices/#heading-side-effects) for more information.
 
 ### Using GitHub Actions to Publish from GitHub
 
