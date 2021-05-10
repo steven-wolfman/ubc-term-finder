@@ -490,13 +490,11 @@ If we were to publish, it would be with version 0.0.1 and with the indicated pac
 
 (Also notice that we're missing our TypeScript type declarations, which should be in the file `build/index.t.js`! Based on this dry-run, we went back and fixed our `tsconfig.json` file. You won't need to do that, since we also fixed our setup instructions for TypeScript; that way our TypeScript writeup makes it looks like we could never make a mistake! Then, we told you we made a mistake. Oops. Unread this paragraph.)
 
-TODO: continue streamlining from here.
-
-We wanted to ensure that _this file_ wasn't published in our package, but that's taken care of already by our `files` field in `package.json`. Only those specified files and the [ones included by default](https://docs.npmjs.com/cli/v7/commands/npm-publish#files-included-in-package) will be published.
+We wanted to ensure that this story of the development process wasn't published in our package. Fortunately, the `files` field in `package.json` already handles that. Only those specified files and the [ones included by default](https://docs.npmjs.com/cli/v7/commands/npm-publish#files-included-in-package) will be published.
 
 ### Setting Up an `npmjs` Account
 
-We can publish our npm package in any npm repository, but the most widely used is [`npmjs.com`](https://www.npmjs.com/). To publish our package there, we need an account. Having created one on the website or by running `npm login`, we go to the `Access Tokens` area of our account options and created an automation token. We'll use the automation token to help with publishing our package. If you would rather, you can use the shell command `npm login` to authenticate instead. For help on that command run `npm help login`.
+We can publish our npm package in any npm repository, but the most widely used is [`npmjs.com`](https://www.npmjs.com/). To publish our package there, we need an account. You can create one on the website or by running `npm login`. With our account set up, we went to the `Access Tokens` area of our account options and created an automation token. We'll use the automation token to help with publishing our package. If you would rather, you can use the shell command `npm login` to authenticate instead. For help on that command run `npm help login`.
 
 ### Using `np` Instead of Managing Publication Yourself
 
@@ -564,7 +562,9 @@ So, for our local package testing, we do the following at the terminal:
 
 ### Publishing and Versioning
 
-We're finally ready to publish by running `npm publish`.
+We're finally about ready to publish by running `npm publish`.
+
+TODO: continue from here. Also, what happened to our authentication token?
 
 Later, when we make updates, we'll want to run [`npm version`](https://docs.npmjs.com/cli/v7/commands/npm-version) before the next `npm publish`. (npm will refuse to republish to the same version to the same repository, thankfully!)
 
