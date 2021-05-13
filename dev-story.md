@@ -494,7 +494,11 @@ We wanted to ensure that this story of the development process wasn't published 
 
 ### Setting Up an `npmjs` Account
 
-We can publish our npm package in any npm repository, but the most widely used is [`npmjs.com`](https://www.npmjs.com/). To publish our package there, we need an account. You can create one on the website or by running `npm login`. With our account set up, we went to the `Access Tokens` area of our account options and created an automation token. We'll use the automation token to help with publishing our package. If you would rather, you can use the shell command `npm login` to authenticate instead. For help on that command run `npm help login`.
+We can publish our npm package in any npm repository, but the most widely used is [`npmjs.com`](https://www.npmjs.com/). To publish our package there, we need an account. You can create one on the website or by running `npm login`.
+
+You may want to use an npm access token for your publication process. You can make one via the command line with the [`npm token` command](https://docs.npmjs.com/cli/v7/commands/npm-token) or in the `Access Tokens` area of your account options on the npm site. (Automation tokens for a fully automated workflow can only be made on the website.) You would then use the token by including it in a `.npmrc` file. Do **not** publish your token in your repository, however! [GitHub's instructions on publishing npm packages](https://docs.github.com/en/actions/guides/publishing-nodejs-packages#publishing-packages-to-the-npm-registry) show how to use the token in a fully automated GitHub Actions workflow. You could also manually create a similar `.npmrc` to the one shown there that embeds your token. If so, either set the token up in an environment variable (as the GitHub workflow does) in a protected file or store the literal token in a private `.npmrc` file, such as in your home directory (`~/.npmrc`).
+
+We will use the [`npm login` shell command](https://docs.npmjs.com/cli/v7/commands/npm-adduser) to authenticate instead. For help on that command run `npm help login`.
 
 ### Using `np` Instead of Managing Publication Yourself
 
@@ -513,10 +517,10 @@ np
 
 ### `prepare` and `prepublishOnly`
 
-There may be some steps we use to prepare for publication. In our case, this includes compiling the TypeScript code to JavaScript and building the separate TypeScript definitions file (`*.d.ts`). There are a [collection of useful hooks](https://docs.npmjs.com/cli/v7/using-npm/scripts#life-cycle-scripts) for this in your `package.json` scripts. We'll be most interested in:
+There may be some steps we use to prepare for publication. In our case, this includes compiling the TypeScript code to JavaScript and building the separate TypeScript definitions file (`*.d.ts`). There are a [collection of useful hooks](https://docs.npmjs.com/cli/v7/using-npm/scripts#life-cycle-scripts) for this in the `package.json` scripts. We'll be most interested in:
 
-- `prepare`: Runs before packing or publishing. Note that this will run when you use `npm install` on this project. It does _not_ run when you install this project from another project, i.e., when your package gets used.
-- `prepublishOnly`: Runs only before publication, on `npm publish` but not other times when `prepare` runs, like `npm pack`. `prepublishOnly` runs before `prepare` on `npm publish`. (Be aware that [the old `prepublish` script is deprecated](https://docs.npmjs.com/cli/v7/using-npm/scripts#prepare-and-prepublish).)
+- `prepare`: runs before packing or publishing. This also runs when you use `npm install` on this project. It does _not_ run when you install this project from another project, i.e., when your package gets used.
+- `prepublishOnly`: runs only before publication. So, `npm publish` runs this script but not other commands that run the `prepare` script, like `npm pack`. On `npm publish`, `prepublishOnly` runs _before_ `prepare`. (Be aware that [the old `prepublish` script is deprecated](https://docs.npmjs.com/cli/v7/using-npm/scripts#prepare-and-prepublish).)
 
 We probably want to compile in our `prepare` step. Among other things, that's useful for local testing, which uses `npm pack` but not `npm publish`.
 
@@ -526,7 +530,7 @@ For that compile step, we want at minimum a `prepare` script like:
 "prepare": "npm run build"
 ```
 
-(We're fond of overkill and so tempted to do more steps like clean the project directory, run a clean install, run tests, and only then build. However, this runs on install; so, some of these would likely be very bad ideas, particularly the clean install!)
+(We're fond of overkill and so tempted to do more steps like clean the project directory, run a clean install, run tests, and only then build. However, the `prepare` script runs on install; so, some of these would likely be very bad ideas, particularly the clean install!)
 
 For our `prepublishOnly` step, we'll want to at least run our tests:
 
@@ -538,11 +542,9 @@ There are pitfalls not checked by these scripts, such as ensuring that our git w
 
 ### Testing Your Package Locally
 
-We'll want to test that our package works before publishing it. [npm's advice on local testing](https://docs.npmjs.com/cli/v7/using-npm/developers#before-publishing-make-sure-your-package-installs-and-works) may work. However, that tests on the contents of your project directory. We're publishing far less than actually appears in our directory and would like to test what's actually published.
+We'll want to test that our package works before publishing it. [npm's advice on local testing](https://docs.npmjs.com/cli/v7/using-npm/developers#before-publishing-make-sure-your-package-installs-and-works) may work. However, that tests on the contents of your project directory. We're publishing a small subset of our project files. We would like to test with what's actually published.
 
-We set up another, empty directory to test our package.
-
-So, for our local package testing, we do the following at the terminal:
+For our local package testing, we set up another, empty package testing directory. Then, we do the following at the terminal:
 
 1. From our project directory, run `npm pack`. On success, that gives us a [tarball](<https://en.wikipedia.org/wiki/Tar_(computing)>) containing our actual package. (We added a line to our `.gitignore` so this file will not be committed: `ubc-term-finder-*.tgz`.) We take a note of the path to this file, including the name of the tarball itself; we'll refer to it below as `LOCAL_PACKAGE_PATH`.
 2. Change into your package testing directory and run `npm install LOCAL_PACKAGE_PATH`. This installs our package based on the tarball. We can inspect it in the `node_modules/ubc-term-finder` directory.
@@ -558,13 +560,11 @@ So, for our local package testing, we do the following at the terminal:
    { year: 2021, session: 'S', termNum: 1 }
    ```
 
-   Or we can create a small JavaScript or TypeScript file and ensure we can import and use our package.
+   Alternately, we can create a small JavaScript or TypeScript file. In the file, we import and use our package.
 
 ### Publishing and Versioning
 
 We're finally about ready to publish by running `npm publish`.
-
-TODO: continue from here. Also, what happened to our authentication token?
 
 Later, when we make updates, we'll want to run [`npm version`](https://docs.npmjs.com/cli/v7/commands/npm-version) before the next `npm publish`. (npm will refuse to republish to the same version to the same repository, thankfully!)
 
@@ -575,15 +575,16 @@ Interestingly, unlike `npm publish`, `npm version` checks that the git working d
 We will also want to push the commit, push the tags (which contain the version number), and of course actually publish! The final sequence of commands looks something like this, depending on what your new version does:
 
 ```bash
+npm login
 npm version minor -m "Provide term formatting options"
 git push
 git push --tags
 npm publish
 ```
 
-Some of this can also be built into the npm `preversion`, `version`, and `postversion` scripts. See `npm help version` for an example. (The current example pushes the results of building the project to their git repository. We would avoid that behaviour for our package.)
+You should only need to use `npm login` once per login session to your terminal. Also, some of this can also be built into the npm `preversion`, `version`, and `postversion` scripts. See `npm help version` for an example. (That example pushes the results of building the project to the git repository. We would avoid that behaviour for our package, since the `build` directory is in our `.gitignore`!)
 
-We'll go ahead and update our `package.json` similarly:
+We'll go ahead and update our `package.json` to build some of these steps in:
 
 ```javascript
 "scripts": {
@@ -598,6 +599,7 @@ Unlike the sample from `npm help version`, our `version` script does not run the
 At this point, to publish a new version, we only need to execute commands like:
 
 ```bash
+npm login
 npm version minor -m "Provide term formatting options"
 npm publish
 ```
@@ -606,9 +608,7 @@ You may want to streamline your scripts a little more than we did to make this s
 
 ### `sideEffects` in `package.json` for Tree Shaking
 
-[Tree Shaking](https://en.wikipedia.org/wiki/Tree_shaking) is a technique for including only live (possibly used) code when publishing it. If our package is used from other packages, it could be eliminated due to tree shaking (if the analysis finds it cannot be called in the context in which the other package is used) or portions of our own package and its dependencies could be eliminated for the same reason.
-
-To make this work better, it may be helpful to add `"sideEffects": false` to `package.json`. We'll skip that for our package, but see [BetterStack's discussion of `sideEffects`](https://betterstack.dev/blog/npm-package-best-practices/#heading-side-effects) for more information.
+[Tree Shaking](https://en.wikipedia.org/wiki/Tree_shaking) is a technique for including only live (possibly used) code when publishing it. That can significantly reduce file size in JavaScript applications. To make this work better, it may be helpful to add `"sideEffects": false` to `package.json`. We'll skip that for our package, but see [BetterStack's discussion of `sideEffects`](https://betterstack.dev/blog/npm-package-best-practices/#heading-side-effects) for more information.
 
 ### Using GitHub Actions to Publish from GitHub
 
