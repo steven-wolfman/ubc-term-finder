@@ -359,13 +359,11 @@ Then, we create our usual set of 12 tests with a tabular `test.each` call. In th
 
 [Continuous Integration](https://en.wikipedia.org/wiki/Continuous_integration) (CI) involves frequent commits that are automatically tested for quality control and then integrated into the main codebase. This can be paired with continuous delivery and/or deployment (and DevOps processes in general) so that updates rapidly make it to users.
 
-We'll focus on CI, which is already overkill (of course!) on a tiny, two-person project. The quality control can take any form, but typically includes a build and thorough testing. At minimum, we would want [unit tests](https://en.wikipedia.org/wiki/Unit_testing) (testing each source code piece indepentently) and [regression tests](https://en.wikipedia.org/wiki/Regression_testing) to avoid reintroducing bugs we fix along the way. We'll add to that TypeScript's static type checking and some basic style/format checking; in other words, everything we've already set up in our `npm test` script. Using that script for CI also means we can run our CI tests locally to develop confidence that our pull requests will work.
+We'll focus on CI, which is already overkill (of course!) on a tiny, two-person project. The quality control can take any form, but typically includes a build and thorough testing. At minimum, we would want [unit tests](https://en.wikipedia.org/wiki/Unit_testing) (testing each source code piece indepentently) and [regression tests](https://en.wikipedia.org/wiki/Regression_testing) to avoid reintroducing bugs we fix along the way. We'll add TypeScript's static type checking and some basic style/format checking&mdash;in other words, everything we've already set up in our `npm test` script. Using that script for CI also means we can run our CI tests locally to develop confidence that our pull requests will work.
 
-There are several popular CI platforms including: [Travis CI](https://travis-ci.org/), [CircleCI](https://circleci.com/), [Google Cloud Build](https://cloud.google.com/build), [AWS CodePipeline](https://aws.amazon.com/codepipeline/), and [GitHub Actions](https://docs.github.com/en/actions/guides/about-continuous-integration) (which is based on [Azure Pipelines](https://azure.microsoft.com/en-us/services/devops/pipelines/)).
+There are several popular CI platforms including: [Travis CI](https://travis-ci.org/), [CircleCI](https://circleci.com/), [Google Cloud Build](https://cloud.google.com/build), [AWS CodePipeline](https://aws.amazon.com/codepipeline/), and [GitHub Actions](https://docs.github.com/en/actions/guides/about-continuous-integration) (which is based on [Azure Pipelines](https://azure.microsoft.com/en-us/services/devops/pipelines/)). Some quick searching around suggested not many meaningful differences between the available options at our scale. Since we're already using GitHub, we'll work with GitHub Actions.
 
-Some quick searching around suggested not many meaningful differences between the available options at our scale. Since we're already using GitHub, we'll work with GitHub Actions.
-
-All the tools, including GitHub Actions, allow you to hook an event relevant to the software development pipeline to a script and then take action based on the script's results. We will likely focus on pushes/pull requests to the main branch as our triggering event. Other possibilities in GitHub Actions include other common git actions, manual triggers, and scheduled events (via [cron](https://en.wikipedia.org/wiki/Cron) syntax). Actions might include accepting/rejecting a pull request, just flagging that success/failure for manual review, logging results, and notifying stakeholders of the process. We configure Actions via a [YAML](https://en.wikipedia.org/wiki/YAML) file that lists the event and its triggered script, a "[workflow](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions)" in GitHub Actions.
+All the tools, including GitHub Actions, allow you to hook an event relevant to the software development pipeline to a script and then take action based on the script's results. We will likely focus on pushes/pull requests to the main branch as our triggering event. Other possibilities in GitHub Actions include other common git actions, manual triggers, and scheduled events (via [cron](https://en.wikipedia.org/wiki/Cron) syntax). Actions might include accepting/rejecting a pull request, just flagging that success/failure for manual review, logging results, and notifying stakeholders of the process. We configure Actions via a [YAML](https://en.wikipedia.org/wiki/YAML) file that lists the event and its triggered script. That script is called a "[workflow](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions)" in GitHub Actions.
 
 (YAML is essentially a configuration file language. That may be surprising if you've seen "YA*" and "*ML" acronyms before and guess YAML means "Yet Another Markup Language". Per its Wikipedia page, that is what the acronym originally meant. However, a configuration file isn't a markup file. So, they backronymed it to "YAML Ain't Markup Language". Go figure!)
 
@@ -373,11 +371,11 @@ All the tools, including GitHub Actions, allow you to hook an event relevant to 
 
 For a quick start, check out the [GitHub Actions cheat sheet](https://github.github.io/actions-cheat-sheet/actions-cheat-sheet.html). For details, check out the [GitHub Actions reference](https://docs.github.com/en/actions/reference). You may find it easier to read the reference with some examples of the language it uses to describe its YAML syntax:
 
-- `on.<push|pull_request>.<branches|tags>` means:
+- [`on.<push|pull_request>.<branches|tags>`](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#onpushpull_requestbranchestags) means:
   - in the `on:` section (i.e., the value associated with the `on` key) of your YAML document,
   - in the `push:` or `pull_request:` subsection,
   - the `branches:` or `tags:` subsubsection.
-- `jobs.<job_id>.steps[*].name` means
+- [`jobs.<job_id>.steps[*].name`](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsname) means
   - in the `jobs:` section,
   - in the subsection with the particular name to replace _job_id_ that you chose,
   - in the `steps:` subsubsection,
@@ -408,7 +406,7 @@ Here are a few starter workflows of interest to us:
 
 ### Setting Up the Workflow File
 
-GitHub Actions looks for your workflows in `.github/workflows` in files with `.yml` or `.yaml` extensions. We want to create a workflow that runs on pushes and pull requests to the `main` branch. So, we'll start in our `.github/workflows/ci.yml` file with:
+GitHub Actions looks for your workflows in `.github/workflows` in files with `.yml` or `.yaml` extensions. We want to create a workflow that runs on pushes and pull requests to the `main` branch. So, we'll start in our [`.github/workflows/ci.yml` file](.github/workflows/ci.yml) with:
 
 ```yaml
 name: Continuous Integration
