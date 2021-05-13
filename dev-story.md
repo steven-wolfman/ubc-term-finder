@@ -535,7 +535,7 @@ We wanted to ensure that this story of the development process wasn't published 
 
 ### Setting Up an `npmjs` Account
 
-We can publish our npm package in any npm repository, but the most widely used is [`npmjs.com`](https://www.npmjs.com/). To publish our package there, we need an account. You can create one on the website or by running `npm login`.
+We can publish our npm package in any npm repository, but the most widely used is [`npmjs.com`](https://www.npmjs.com/). To publish our package there, we need an account. You can create one on the website or by running [`npm login`](https://docs.npmjs.com/cli/v7/commands/npm-adduser) (an alias for `npm adduser`).
 
 You may want to use an npm access token for your publication process. You can make one via the command line with the [`npm token` command](https://docs.npmjs.com/cli/v7/commands/npm-token) or in the `Access Tokens` area of your account options on the npm site. (Automation tokens for a fully automated workflow can only be made on the website.) You would then use the token by including it in a `.npmrc` file. Do **not** publish your token in your repository, however! [GitHub's instructions on publishing npm packages](https://docs.github.com/en/actions/guides/publishing-nodejs-packages#publishing-packages-to-the-npm-registry) show how to use the token in a fully automated GitHub Actions workflow. You could also manually create a similar `.npmrc` to the one shown there that embeds your token. If so, either set the token up in an environment variable (as the GitHub workflow does) in a protected file or store the literal token in a private `.npmrc` file, such as in your home directory (`~/.npmrc`).
 
