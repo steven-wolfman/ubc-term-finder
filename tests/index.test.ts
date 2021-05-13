@@ -49,8 +49,15 @@ describe("the getUbcTerm function", () => {
   describe("should use the current time by default", () => {
     describe("tested via mocking, which is probably inferior to using jest.setSystemTime", () => {
       let dateSpy: jest.SpyInstance;
+      let originalDate: DateConstructor;
       beforeAll(() => {
-        dateSpy = jest.spyOn(global, "Date");
+        originalDate = global.Date;
+        dateSpy = jest.fn(() => new originalDate());
+
+        // We can either set up the remaining properties of Date or command Typescript
+        // to ignore the type issues by casting to DateConstructor via unknown. For a full
+        // solution, see: https://github.com/facebook/jest/issues/9185#issuecomment-560152566
+        global.Date = (dateSpy as unknown) as DateConstructor;
       });
       beforeEach(() => {
         // Reset counters.
@@ -58,7 +65,7 @@ describe("the getUbcTerm function", () => {
       });
       afterAll(() => {
         // Return Date to its original functionality.
-        dateSpy.mockRestore();
+        global.Date = originalDate;
       });
       test("including using the result of 'new Date()' when called with no arguments", () => {
         const result = module.getUbcTerm();
