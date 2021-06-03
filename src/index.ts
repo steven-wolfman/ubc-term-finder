@@ -34,5 +34,44 @@ export interface UbcTerm {
  * @returns {Date} the term of the provided date.
  */
 export function getUbcTerm(date: Date = new Date()): UbcTerm {
-  return { year: 1999, session: "W", termNum: 1 };
+  // Choose the term based on the ZERO-BASED month number
+  switch (date.getMonth()) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+      return {
+        // At UBC, 2020W2 is in the calendar year 2021.
+        year: date.getFullYear() - 1,
+        session: "W",
+        termNum: 2,
+      };
+    case 4:
+    case 5:
+      return {
+        year: date.getFullYear(),
+        session: "S",
+        termNum: 1,
+      };
+    case 6:
+    case 7:
+      return {
+        year: date.getFullYear(),
+        session: "S",
+        termNum: 2,
+      };
+    case 8:
+    case 9:
+    case 10:
+    case 11:
+      return {
+        year: date.getFullYear(),
+        session: "W",
+        termNum: 1,
+      };
+    default:
+      throw new Error(
+        `received month value "${date.getMonth()}", which is outside the allowable range [0, 11]`
+      );
+  }
 }
