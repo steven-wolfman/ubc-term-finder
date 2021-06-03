@@ -11,6 +11,7 @@ To publish an npm package, we're starting from:
 - [BetterStack's best practices article](https://betterstack.dev/blog/npm-package-best-practices/)
 - [khalilstemmler.com's article on setting up TypeScript + Node.js](https://khalilstemmler.com/blogs/typescript/node-starter-project/)
 - [Carl-Johan Kihl's publishing an NPM TypeScript package article](https://itnext.io/step-by-step-building-and-publishing-an-npm-typescript-package-44fe7164964c)
+- [Kadi Kraman's npm publishing guide](https://formidable.com/blog/2020/publish-npm-packages/) for open-source maintainers
 
 To get set up, Steve created a public [Github](https://github.com/) repo with an MIT license and the Node .gitignore file. For the name, the BetterStack article and [npm's guidelines for package names](https://docs.npmjs.com/package-name-guidelines) suggested short, clear, lowercase (no underscores) naming, and we wanted the Github repo and npm package names to match. `ubc-term-finder` seemed short and clear; so, that's the name of the [repo](https://github.com/steven-wolfman/ubc-term-finder).
 
@@ -48,22 +49,9 @@ Now everything is installed, but mostly still needs to be configured:
 1. [Typescript config](https://www.typescriptlang.org/docs/handbook/tsconfig-json.html): Create/edit `tsconfig.json`. We used a slightly edited version of the command from the [stemmler](https://khalilstemmler.com/blogs/typescript/node-starter-project/) tutorial with `--allowJs` set to `false`:
 
    ```bash
-   npx tsc --init --rootDir src --outDir build --esModuleInterop --resolveJsonModule \
-           --lib es6 --module commonjs --allowJs false --noImplicitAny true
+   npx tsc --init --rootDir src --outDir build --declaration --esModuleInterop --lib es6 \
+           --module commonjs --noImplicitAny true --resolveJsonModule --target es3
    ```
-
-    <!-- Then edited that to modify/add these options from the typescript config notes for Babel:
-    ```json
-    {
-      "compilerOptions": {
-        // Ensure that .d.ts files are created by tsc, but not .js files
-        "declaration": true,
-        "emitDeclarationOnly": true,
-        // Ensure that Babel can safely transpile files in the TypeScript project
-        "isolatedModules": true
-      }
-    }
-    ``` -->
 
    We also added include/exclude options to this:
 
@@ -77,7 +65,7 @@ Now everything is installed, but mostly still needs to be configured:
    Separately, `package.json` needs some configuration both for our directory structure and for `typescript` specifically. Added these attributes to `package.json`:
 
    ```js
-   {
+   { // Comments may not work in your JSON files. These are here just to clarify!
      "main": "build/index.js", // tsconfig.json is set up to put build files into the build directory
      "typings": "build/index.d.ts", // index.js is plain JS, but tsc puts type info here
      "files": [
@@ -135,7 +123,7 @@ Now everything is installed, but mostly still needs to be configured:
    };
    ```
 
-   We think the `overrides` rule above does a good job informing `eslint` about the `jest` environment (so you don't get `'describe' is not defined` style errors) and `jest`-specific rules. Alternatively, you can add another `.eslintrc.js` file in the `tests` folder or specify `/* eslint-env jest */` at the top of each test file (though in that case, you'll still want the `extends`/`plugins` options specific to `jest`).
+   We think the `overrides` rule above does a good job informing `eslint` about the `jest` environment (so you don't get `'describe' is not defined` style errors) and `jest`-specific rules. Alternatively, you can add another `.eslintrc.js` file in the `tests` directory or specify `/* eslint-env jest */` at the top of each test file (though in that case, you'll still want the `extends`/`plugins` options specific to `jest`).
 
 4. Lots of scripts need to be configured in `package.json` (and we haven't even gotten to [publishing scripts](https://docs.npmjs.com/cli/v7/using-npm/scripts#life-cycle-scripts)!). Some of this is really about configuration of tools described elsewhere, but it seemed valuable to wrap up in one place. To make it easier to run the scripts, we ran `npm install npm-run-all del-cli--save-dev` (for [`run-all`](https://www.npmjs.com/package/npm-run-all) and [`del-cli`](https://www.npmjs.com/package/del-cli)), but this could be replaced by tweaks like `npm run script1 && npm run script 2 && ...` for `run-all`. Much of this section is based on the [`react-svg`](https://github.com/tanem/react-svg) project as a working example.
    ```json
@@ -194,7 +182,7 @@ The actual code has plenty of JSDoc comments to give users information about the
 
 #### Jest Tests
 
-We set up our configuration so that Jest test files can be in the `tests` folder under our project root or in [any of the default places](https://jestjs.io/docs/configuration#testmatch-arraystring): under any `__tests__` subfolder or named ending in `.spec.ts`, `.test.ts` or the like (e.g., `.test.jsx` for a [JSX file](https://reactjs.org/docs/introducing-jsx.html)). For now, we're testing in `tests/index.test.ts`, but we might be better off testing locally alongside our source so that imports in the tests don't get complicated.
+We set up our configuration so that Jest test files can be in the `tests` directory under our project root or in [any of the default places](https://jestjs.io/docs/configuration#testmatch-arraystring): under any `__tests__` subdirectory or named ending in `.spec.ts`, `.test.ts` or the like (e.g., `.test.jsx` for a [JSX file](https://reactjs.org/docs/introducing-jsx.html)). For now, we're testing in `tests/index.test.ts`, but we might be better off testing locally alongside our source so that imports in the tests don't get complicated.
 
 Jest automatically makes available various utility functions and the [`jest` object](https://jestjs.io/docs/jest-object). So, the backbone of our test file is:
 
@@ -461,7 +449,7 @@ steps:
   - run: npm test
 ```
 
-The syntax of the second list entry may look odd! Remember that a list entry can itself be a YAML mapping with keys and values, and in this list every entry _is_ a YAML mapping. The first entry has just one key (`uses`) with its one associated value (`actions/checkout@v2`). The second entry has the key `uses` and the key `with`. The value associated with `with` is itself a mapping with just one key: `node-version`. A [`uses` value](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsuses) in a step calls on a GitHub Action that wraps up some useful behaviour for a workflow. In this case, the Actions prepare your job's platform for use: checking out your repository and setting up node. We use version 2 of both of these actions; best practice is to give a reasonably specific version of the action to use to avoid unexpected behaviour as the action's implementation evolves. A [`run` value](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsrun) in a step is a shell command. We could have had a single step to run both commands instead of two separate steps by using a [YAML block literal](https://yaml.org/spec/1.2/spec.html#id2760844):
+The syntax of the second list entry may look odd! Remember that a list entry can itself be a YAML mapping with keys and values, and in this list every entry _is_ a YAML mapping. The first entry has just one key (`uses`) with its one associated value (`actions/checkout@v2`). The second entry has the key `uses` and the key `with`. The value associated with `with` is itself a mapping with just one key: `node-version`. A [`uses` value](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsuses) in a step calls on a GitHub Action that wraps up some useful behaviour for a workflow. In this case, the Actions prepare our job's platform for use: checking out your repository and setting up node. We use version 2 of both of these actions; best practice is to give a reasonably specific version of the action to use to avoid unexpected behaviour as the action's implementation evolves. A [`run` value](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsrun) in a step is a shell command. We could have had a single step to run both commands instead of two separate steps by using a [YAML block literal](https://yaml.org/spec/1.2/spec.html#id2760844):
 
 ```yaml
 run: |
@@ -503,6 +491,171 @@ switch (date.getMonth()) {
 The only remaining interesting point is that the January through April case subtracts one from the year since, for example, at UBC the 2020W2 term occurs in Jan&ndash;Apr of 2021.
 
 That's as far as we'll go in our implementation! A more advanced implementation could be more clever about timezones, consider UBC's specific term boundaries currently, look back at UBC records to inspect old boundaries, and perhaps handle special term designations like two-term courses. All of that sounds like.. um.. fun, but it won't help us learn to make a simple TypeScript npm package!
+
+## Publishing an npm Package
+
+[npm](https://www.npmjs.com/) maintains a repository of packages that are easy to install and use. We want to make our package available there. We've already used [`npm init`](https://docs.npmjs.com/cli/v7/commands/npm-init) to configure many elements relevant to npm package publication in [`package.json`](package.json), including: the project name/description, which files to include, and the entry point to the package. However, we used `1.0.0` as the version. According to semantic versioning ([semver](https://semver.org/)), that's fine, but it does mean we should have a reasonably stable public API. Since we may not be there yet, we'll instead start with version `0.0.1` in `package.json`:
+
+```javascript
+"version": "0.0.1",
+```
+
+That version format is `MAJOR.MINOR.PATCH`. At major versions 1 and on: a patch is a backwards-compatible bug fix; a minor version change is a backwards-compatible functionality change; and a major version change can break backwards compatibility. Semver specifies that [anything can change at any time in major version 0](https://semver.org/#spec-item-4), but it may be better for [npm's caret (^) syntax](https://github.com/npm/node-semver#caret-ranges-123-025-004) to limit breaking API changes to the minor version number.
+
+### Checking Status
+
+Running [`npm publish --dry-run`](https://docs.npmjs.com/cli/v7/commands/npm-publish) gives a sense of how things are going so far:
+
+```
+npm notice
+npm notice 📦  ubc-term-finder@0.0.1
+npm notice === Tarball Contents ===
+npm notice 1.1kB LICENSE
+npm notice 487B  README.md
+npm notice 815B  build/index.js
+npm notice 1.7kB package.json
+npm notice === Tarball Details ===
+npm notice name:          ubc-term-finder
+npm notice version:       0.0.1
+npm notice filename:      ubc-term-finder-0.0.1.tgz
+npm notice package size:  2.1 kB
+npm notice unpacked size: 4.1 kB
+npm notice shasum:        3bdb9a05e6b1fbdd32327c28bc2f4b2b2f53679f
+npm notice integrity:     sha512-nvZsEzxngSVYU[...]V8TtcY7K025oA==
+npm notice total files:   4
+npm notice
++ ubc-term-finder@0.0.1
+```
+
+If we were to publish, it would be with version 0.0.1 and with the indicated package contents. Notice that the package will be just a few kilobytes (and usable with only those few kilobytes, since its only dependencies are for development), not the 200 megabytes it takes up installed on disk at this point!
+
+(Also notice that we're missing our TypeScript type declarations, which should be in the file `build/index.d.ts`! Based on this dry-run, we went back and fixed our `tsconfig.json` file. You won't need to do that, since we also fixed our setup instructions for TypeScript; that way our TypeScript writeup makes it looks like we could never make a mistake! Then, we told you we made a mistake. Oops. Unread this paragraph.)
+
+We wanted to ensure that this story of the development process wasn't published in our package. Fortunately, the `files` field in `package.json` already handles that. Only those specified files and the [ones included by default](https://docs.npmjs.com/cli/v7/commands/npm-publish#files-included-in-package) will be published.
+
+### Setting Up an `npmjs` Account
+
+We can publish our npm package in any npm repository, but the most widely used is [`npmjs.com`](https://www.npmjs.com/). To publish our package there, we need an account. You can create one on the website or by running [`npm login`](https://docs.npmjs.com/cli/v7/commands/npm-adduser) (an alias for `npm adduser`).
+
+You may want to use an npm access token for your publication process. You can make one via the command line with the [`npm token` command](https://docs.npmjs.com/cli/v7/commands/npm-token) or in the `Access Tokens` area of your account options on the npm site. (Automation tokens for a fully automated workflow can only be made on the website.) You would then use the token by including it in a `.npmrc` file. Do **not** publish your token in your repository, however! [GitHub's instructions on publishing npm packages](https://docs.github.com/en/actions/guides/publishing-nodejs-packages#publishing-packages-to-the-npm-registry) show how to use the token in a fully automated GitHub Actions workflow. You could also manually create a similar `.npmrc` to the one shown there that embeds your token. If so, either set the token up in an environment variable (as the GitHub workflow does) in a protected file or store the literal token in a private `.npmrc` file, such as in your home directory (`~/.npmrc`).
+
+We will use the [`npm login` shell command](https://docs.npmjs.com/cli/v7/commands/npm-adduser) to authenticate instead. For help on that command run `npm help login`.
+
+### Using `np` Instead of Managing Publication Yourself
+
+Before we dive into the nitty-gritty of getting publication right, consider using the [`np` utility](https://github.com/sindresorhus/np#readme) instead:
+
+```bash
+npm install --global np
+np
+```
+
+`np` will help you work interactively through the publication process, based on your local files. It looks for important issues like:
+
+- ensuring your git working directory is clean
+- ensuring you are in the branch you release from
+- many more that we don't even mention below!
+
+### `prepare` and `prepublishOnly`
+
+There may be some steps we use to prepare for publication. In our case, this includes compiling the TypeScript code to JavaScript and building the separate TypeScript definitions file (`*.d.ts`). There are a [collection of useful hooks](https://docs.npmjs.com/cli/v7/using-npm/scripts#life-cycle-scripts) for this in the `package.json` scripts. We'll be most interested in:
+
+- `prepare`: runs before packing or publishing. This also runs when you use `npm install` on this project. It does _not_ run when you install this project from another project, i.e., when your package gets used.
+- `prepublishOnly`: runs only before publication. So, `npm publish` runs this script but not other commands that run the `prepare` script, like `npm pack`. On `npm publish`, `prepublishOnly` runs _before_ `prepare`. (Be aware that [the old `prepublish` script is deprecated](https://docs.npmjs.com/cli/v7/using-npm/scripts#prepare-and-prepublish).)
+
+We probably want to compile in our `prepare` step. Among other things, that's useful for local testing, which uses `npm pack` but not `npm publish`.
+
+For that compile step, we want at minimum a `prepare` script like:
+
+```javascript
+"prepare": "npm run build"
+```
+
+(We're fond of overkill and so tempted to do more steps like clean the project directory, run a clean install, run tests, and only then build. However, the `prepare` script runs on install; so, some of these would likely be very bad ideas, particularly the clean install!)
+
+For our `prepublishOnly` step, we'll want to at least run our tests:
+
+```javascript
+"prepublishOnly": "npm test"
+```
+
+There are pitfalls not checked by these scripts, such as ensuring that our git working directory is clean. (The git working directory being clean is _not_ the same as running `npm run clean`. A clean git working directory means there are no local changes still waiting to be staged/committed. `npm run clean` just does whatever we told it to do in the `run` script in `package.json`.) Again, the `np` utility can help you avoid these pitfalls!
+
+### Testing Your Package Locally
+
+We'll want to test that our package can be imported from other code before publishing it. [npm's advice on local testing](https://docs.npmjs.com/cli/v7/using-npm/developers#before-publishing-make-sure-your-package-installs-and-works) may work for you. However, that advice has you import your entire set of project files. We would rather test with what we're actually publishing, which is only a small subset of our project files.
+
+For our local package testing, we set up another, empty package testing directory. Then, we do the following at the terminal:
+
+1. From our project directory, run `npm pack`. On success, that gives us a [tarball](<https://en.wikipedia.org/wiki/Tar_(computing)>) containing our actual package. (We added a line to our `.gitignore` so this file will not be committed: `ubc-term-finder-*.tgz`.) We take a note of the path to this file, including the name of the tarball itself; we'll refer to it below as `LOCAL_PACKAGE_PATH`.
+2. Change into your package testing directory and run `npm install LOCAL_PACKAGE_PATH`. This installs our package based on the tarball. We can inspect it in the `node_modules/ubc-term-finder` directory.
+3. Test our package. We can do this directly in node:
+
+   ```bash
+   ~/play/temp$ node
+   Welcome to Node.js v15.14.0.
+   Type ".help" for more information.
+   > { getUbcTerm } = require('ubc-term-finder')
+   { __esModule: true, getUbcTerm: [Function: getUbcTerm] }
+   > getUbcTerm(new Date())
+   { year: 2021, session: 'S', termNum: 1 }
+   ```
+
+   Alternately, we can create a small JavaScript or TypeScript file. In the file, we import and use our package.
+
+### Publishing and Versioning
+
+We're finally about ready to publish by running `npm publish`.
+
+Later, when we make updates, we'll want to run [`npm version`](https://docs.npmjs.com/cli/v7/commands/npm-version) before the next `npm publish`. (npm will refuse to republish the same version to the same repository, thankfully!)
+
+For help on versioning, run `npm help version`. Most commonly, we will run one of `npm version major`, `npm version minor`, or `npm version patch` depending on the [type of update we made](https://semver.org/). This automatically commits to git and adds a version tag. We may want to leave a message in the commit, like: `npm version minor -m "Version %s provides term formatting options"`. The `%s` will be replaced by the version.
+
+Interestingly, unlike `npm publish`, `npm version` checks that the git working directory is clean before proceeding. So, we don't need the `np` utility to remind us of that particular issue at this point! (But we can still make _many_ other mistakes like not being on our `main` branch!)
+
+We will also want to push the commit, push the tags (which contain the version number), and of course actually publish! The final sequence of commands looks something like this, depending on what your new version does:
+
+```bash
+npm login
+npm version minor -m "Provide term formatting options"
+git push
+git push --tags
+npm publish
+```
+
+You should only need to use `npm login` once per login session to your terminal. Also, some of this can be built into the npm `preversion`, `version`, and `postversion` scripts. See `npm help version` for an example. (That example pushes the results of building the project to the git repository. We would avoid that behaviour for our package, since the `build` directory is in our `.gitignore`!)
+
+We'll go ahead and update our `package.json` to build some of these steps in:
+
+```javascript
+"scripts": {
+  "preversion": "npm test",
+  "version": "npm run format && git add .",
+  "postversion": "git push && git push --tags"
+}
+```
+
+Unlike the sample from `npm help version`, our `version` script does not run the build script. (There's nothing in `build` that we need during versioning, and `prepare` already runs our build script prior to publishing.) Instead, our script formats our files to patch any formatting issues before versioning. Note that to keep the working directory clean, we need to explicitly add the changes in git.
+
+At this point, to publish a new version, we only need to execute commands like:
+
+```bash
+npm login
+npm version minor -m "Provide term formatting options"
+npm publish
+```
+
+You may want to streamline your scripts a little more than we did to make this sequence more efficient. For example, we run `npm test` in `npm version` and also in `npm publish` (via the `prepublishOnly` script). We also run testing as part of our continuous integration, which will be fired when we push to `main` on GitHub. If your tests are long-running, that may be painful!
+
+### `sideEffects` in `package.json` for Tree Shaking
+
+[Tree Shaking](https://en.wikipedia.org/wiki/Tree_shaking) is a technique for including only live (possibly used) code when publishing it. That can significantly reduce file size in JavaScript applications. To make this work better, it may be helpful to add `"sideEffects": false` to `package.json`. We'll skip that for our package, but see [BetterStack's discussion of `sideEffects`](https://betterstack.dev/blog/npm-package-best-practices/#heading-side-effects) for more information.
+
+### Using GitHub Actions to Publish from GitHub
+
+You may not want to publish directly from your development environment at all. The [GitHub starter workflow for publishing an npm package](https://github.com/actions/starter-workflows/blob/main/ci/npm-publish.yml) can help you automatically publish your package as part of your CI/CD workflow whenever you create a new release on the GitHub server. (This is a template workflow, _not_ a standard workflow. So, either create a new Action in GitHub and choose this template as your starting point or be careful as you adapt the workflow directly. You can also review [GitHub's guide to publishing Node packages](https://help.github.com/actions/language-and-framework-guides/publishing-nodejs-packages).)
+
+Unlike `np`, however, this is not a replacement for configuring your own `npm` scripts for installation, testing, versioning, preparation, and publication of your package! In fact, [releasing is yet another process](https://docs.github.com/en/github/administering-a-repository/about-releases) you may want to learn about.
 
 # Unexplained Oddities and Unresolved Thoughts
 
