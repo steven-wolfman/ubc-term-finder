@@ -647,6 +647,8 @@ npm publish
 
 You may want to streamline your scripts a little more than we did to make this sequence more efficient. For example, we run `npm test` in `npm version` and also in `npm publish` (via the `prepublishOnly` script). We also run testing as part of our continuous integration, which will be fired when we push to `main` on GitHub. If your tests are long-running, that may be painful!
 
+Here is our [`ubc-term-finder` package](https://www.npmjs.com/package/ubc-term-finder).
+
 ### `sideEffects` in `package.json` for Tree Shaking
 
 [Tree Shaking](https://en.wikipedia.org/wiki/Tree_shaking) is a technique for including only live (possibly used) code when publishing it. That can significantly reduce file size in JavaScript applications. To make this work better, it may be helpful to add `"sideEffects": false` to `package.json`. We'll skip that for our package, but see [BetterStack's discussion of `sideEffects`](https://betterstack.dev/blog/npm-package-best-practices/#heading-side-effects) for more information.
