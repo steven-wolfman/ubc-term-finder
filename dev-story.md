@@ -579,11 +579,11 @@ For our `prepublishOnly` step, we'll want to at least run our tests:
 "prepublishOnly": "npm test"
 ```
 
-There are pitfalls not checked by these scripts, such as ensuring that our git working directory is clean. (The git working directory being clean is _not_ the same as running `npm run clean`. A clean git working directory means there are no local changes still waiting to be staged/committed.) Again, the `np` utility can help you avoid these pitfalls!
+There are pitfalls not checked by these scripts, such as ensuring that our git working directory is clean. (The git working directory being clean is _not_ the same as running `npm run clean`. A clean git working directory means there are no local changes still waiting to be staged/committed. `npm run clean` just does whatever we told it to do in the `run` script in `package.json`.) Again, the `np` utility can help you avoid these pitfalls!
 
 ### Testing Your Package Locally
 
-We'll want to test that our package works before publishing it. [npm's advice on local testing](https://docs.npmjs.com/cli/v7/using-npm/developers#before-publishing-make-sure-your-package-installs-and-works) may work. However, that tests on the contents of your project directory. We're publishing a small subset of our project files. We would like to test with what's actually published.
+We'll want to test that our package can be imported from other code before publishing it. [npm's advice on local testing](https://docs.npmjs.com/cli/v7/using-npm/developers#before-publishing-make-sure-your-package-installs-and-works) may work for you. However, that advice has you import your entire set of project files. We would rather test with what we're actually publishing, which is only a small subset of our project files.
 
 For our local package testing, we set up another, empty package testing directory. Then, we do the following at the terminal:
 
