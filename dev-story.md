@@ -65,7 +65,7 @@ Now everything is installed, but mostly still needs to be configured:
    Separately, `package.json` needs some configuration both for our directory structure and for `typescript` specifically. Added these attributes to `package.json`:
 
    ```js
-   {
+   { // Comments may not work in your JSON files. These are here just to clarify!
      "main": "build/index.js", // tsconfig.json is set up to put build files into the build directory
      "typings": "build/index.d.ts", // index.js is plain JS, but tsc puts type info here
      "files": [
@@ -494,7 +494,7 @@ That's as far as we'll go in our implementation! A more advanced implementation 
 
 ## Publishing an npm Package
 
-[npm](https://www.npmjs.com/) maintains a repository of packages that are easy to install and use. We want to make our package available there. We've already used [`npm init`](https://docs.npmjs.com/cli/v7/commands/npm-init) to configure many elements relevant to npm package publication in [`package.json`](package.json), including the project name/description, which files to include, and the entry point to the package. However, we used `1.0.0` as the version. According to semantic versioning ([semver](https://semver.org/)), that's fine, but it does mean we should have a reasonably stable public API. Since we may not be there yet, we'll instead start with version `0.0.1` in `package.json`:
+[npm](https://www.npmjs.com/) maintains a repository of packages that are easy to install and use. We want to make our package available there. We've already used [`npm init`](https://docs.npmjs.com/cli/v7/commands/npm-init) to configure many elements relevant to npm package publication in [`package.json`](package.json), including: the project name/description, which files to include, and the entry point to the package. However, we used `1.0.0` as the version. According to semantic versioning ([semver](https://semver.org/)), that's fine, but it does mean we should have a reasonably stable public API. Since we may not be there yet, we'll instead start with version `0.0.1` in `package.json`:
 
 ```javascript
 "version": "0.0.1",
@@ -529,7 +529,7 @@ npm notice
 
 If we were to publish, it would be with version 0.0.1 and with the indicated package contents. Notice that the package will be just a few kilobytes (and usable with only those few kilobytes, since its only dependencies are for development), not the 200 megabytes it takes up installed on disk at this point!
 
-(Also notice that we're missing our TypeScript type declarations, which should be in the file `build/index.t.js`! Based on this dry-run, we went back and fixed our `tsconfig.json` file. You won't need to do that, since we also fixed our setup instructions for TypeScript; that way our TypeScript writeup makes it looks like we could never make a mistake! Then, we told you we made a mistake. Oops. Unread this paragraph.)
+(Also notice that we're missing our TypeScript type declarations, which should be in the file `build/index.d.ts`! Based on this dry-run, we went back and fixed our `tsconfig.json` file. You won't need to do that, since we also fixed our setup instructions for TypeScript; that way our TypeScript writeup makes it looks like we could never make a mistake! Then, we told you we made a mistake. Oops. Unread this paragraph.)
 
 We wanted to ensure that this story of the development process wasn't published in our package. Fortunately, the `files` field in `package.json` already handles that. Only those specified files and the [ones included by default](https://docs.npmjs.com/cli/v7/commands/npm-publish#files-included-in-package) will be published.
 
@@ -543,7 +543,7 @@ We will use the [`npm login` shell command](https://docs.npmjs.com/cli/v7/comman
 
 ### Using `np` Instead of Managing Publication Yourself
 
-Before we dive into the nitty-gritty of getting publication right, consider using the [`np` utility](https://github.com/sindresorhus/np) instead:
+Before we dive into the nitty-gritty of getting publication right, consider using the [`np` utility](https://github.com/sindresorhus/np#readme) instead:
 
 ```bash
 npm install --global np
@@ -576,10 +576,10 @@ For that compile step, we want at minimum a `prepare` script like:
 For our `prepublishOnly` step, we'll want to at least run our tests:
 
 ```javascript
-"prepublishOnly": "npm run clean && npm test"
+"prepublishOnly": "npm test"
 ```
 
-There are pitfalls not checked by these scripts, such as ensuring that our git working directory is clean. Again, the `np` utility can help you avoid these pitfalls!
+There are pitfalls not checked by these scripts, such as ensuring that our git working directory is clean. (The git working directory being clean is _not_ the same as running `npm run clean`. A clean git working directory means there are no local changes still waiting to be staged/committed.) Again, the `np` utility can help you avoid these pitfalls!
 
 ### Testing Your Package Locally
 
