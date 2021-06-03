@@ -607,9 +607,9 @@ For our local package testing, we set up another, empty package testing director
 
 We're finally about ready to publish by running `npm publish`.
 
-Later, when we make updates, we'll want to run [`npm version`](https://docs.npmjs.com/cli/v7/commands/npm-version) before the next `npm publish`. (npm will refuse to republish to the same version to the same repository, thankfully!)
+Later, when we make updates, we'll want to run [`npm version`](https://docs.npmjs.com/cli/v7/commands/npm-version) before the next `npm publish`. (npm will refuse to republish the same version to the same repository, thankfully!)
 
-For help on versioning, run `npm help version`. Most commonly, we will run one of `npm version major`, `npm version minor`, or `npm version patch` depending on the [type of update we made](https://semver.org/)). This automatically commits to git and adds a version tag. We may want to leave a message in the commit, like: `npm version minor -m "Version %s provides term formatting options"`. The `%s` will be replaced by the version.
+For help on versioning, run `npm help version`. Most commonly, we will run one of `npm version major`, `npm version minor`, or `npm version patch` depending on the [type of update we made](https://semver.org/). This automatically commits to git and adds a version tag. We may want to leave a message in the commit, like: `npm version minor -m "Version %s provides term formatting options"`. The `%s` will be replaced by the version.
 
 Interestingly, unlike `npm publish`, `npm version` checks that the git working directory is clean before proceeding. So, we don't need the `np` utility to remind us of that particular issue at this point! (But we can still make _many_ other mistakes like not being on our `main` branch!)
 
@@ -623,7 +623,7 @@ git push --tags
 npm publish
 ```
 
-You should only need to use `npm login` once per login session to your terminal. Also, some of this can also be built into the npm `preversion`, `version`, and `postversion` scripts. See `npm help version` for an example. (That example pushes the results of building the project to the git repository. We would avoid that behaviour for our package, since the `build` directory is in our `.gitignore`!)
+You should only need to use `npm login` once per login session to your terminal. Also, some of this can be built into the npm `preversion`, `version`, and `postversion` scripts. See `npm help version` for an example. (That example pushes the results of building the project to the git repository. We would avoid that behaviour for our package, since the `build` directory is in our `.gitignore`!)
 
 We'll go ahead and update our `package.json` to build some of these steps in:
 
