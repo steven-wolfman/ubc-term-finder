@@ -659,6 +659,29 @@ You may not want to publish directly from your development environment at all. T
 
 Unlike `np`, however, this is not a replacement for configuring your own `npm` scripts for installation, testing, versioning, preparation, and publication of your package! In fact, [releasing is yet another process](https://docs.github.com/en/github/administering-a-repository/about-releases) you may want to learn about.
 
+## Badges
+
+![GitHub Discussions](https://img.shields.io/github/discussions/steven-wolfman/ubc-term-finder)
+
+The cool kids all have little badges like [![this "cool kid" badge](https://img.shields.io/badge/Popularity-Cool%20Kid-blueviolet?style=flat)](https://shields.io/#your-badge). You can see some examples at the [`shields.io` badges repo](https://github.com/badges/shields#readme). You can check out badges on other people's repos by looking at the raw version of a markdown file with a badge, like the [raw `README.md` for `shields.io` badges](https://raw.githubusercontent.com/badges/shields/master/README.md). The easiest way to set up your own badges is to open [`shields.io`](https://shields.io/),
+
+We'll post a few interesting badges. Looking at a few existing projects and searching for "GitHub" on [`shields.io`](https://shields.io/), we settled on:
+
+- A PRs welcome badge
+- A build passing badge
+- A code coverage badge
+- TODO
+
+Code coverage required us to do a bit more work, but everything else just invloved inserting new code into the top of [`README.md`](README.md) by copying it as markdown from [`shields.io`](https://shields.io/) or from other example projects.
+
+We tried to set up each badge to link to something reasonable, taking our cues from existing projects' choices.
+
+### Code Coverage
+
+TODO
+
+We worked from [Carl-Johan Kihl's freeCodeCamp tutorial on Jest and Codecov](https://www.freecodecamp.org/news/get-your-npm-package-covered-with-jest-and-codecov-9a4cb22b93f4/).
+
 # Unexplained Oddities and Unresolved Thoughts
 
 ## Questions about CI
