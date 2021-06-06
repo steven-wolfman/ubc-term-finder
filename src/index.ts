@@ -69,6 +69,7 @@ export function getUbcTerm(date: Date = new Date()): UbcTerm {
         session: "W",
         termNum: 1,
       };
+    /* istanbul ignore next */
     default:
       throw new Error(
         `received month value "${date.getMonth()}", which is outside the allowable range [0, 11]`

@@ -661,26 +661,78 @@ Unlike `np`, however, this is not a replacement for configuring your own `npm` s
 
 ## Badges
 
-![GitHub Discussions](https://img.shields.io/github/discussions/steven-wolfman/ubc-term-finder)
+The cool kids all have little badges like [![this "cool kid" badge](https://img.shields.io/badge/Popularity-Cool%20Kid-blueviolet?style=flat)](https://shields.io/#your-badge). You can see some examples at the [`shields.io` badges repo](https://github.com/badges/shields#readme). You can check out badges on other people's repos by looking at the raw version of a markdown file with a badge, like the [raw `README.md` for `shields.io` badges](https://raw.githubusercontent.com/badges/shields/master/README.md). The easiest way to set up your own badges is to work from [`shields.io`](https://shields.io/). Find a badge of interest there, click on it, fill in the blanks with your project's details, and copy the badge markdown into your own file.
 
-The cool kids all have little badges like [![this "cool kid" badge](https://img.shields.io/badge/Popularity-Cool%20Kid-blueviolet?style=flat)](https://shields.io/#your-badge). You can see some examples at the [`shields.io` badges repo](https://github.com/badges/shields#readme). You can check out badges on other people's repos by looking at the raw version of a markdown file with a badge, like the [raw `README.md` for `shields.io` badges](https://raw.githubusercontent.com/badges/shields/master/README.md). The easiest way to set up your own badges is to open [`shields.io`](https://shields.io/),
+For some badges, you may need to set up processes on your end. Many of our badges require no special setup. The setup needed for our license and build badges was already done above. We'll give an example below of working to set up a code coverage badge.
 
 We'll post a few interesting badges. Looking at a few existing projects and searching for "GitHub" on [`shields.io`](https://shields.io/), we settled on:
 
-- A PRs welcome badge
-- A build passing badge
-- A code coverage badge
-- TODO
+- A license badge
+- A badge showing our CI workflow's status
+- A badge showing our open issues
+- A "PRs welcome" badge
+- A badge showing how many contributors we have
+- A set of three "social" style badges showing how many GitHub forks, watchers, and stars we have
 
-Code coverage required us to do a bit more work, but everything else just invloved inserting new code into the top of [`README.md`](README.md) by copying it as markdown from [`shields.io`](https://shields.io/) or from other example projects.
+Here is the code from the top of [`README.md`](README.md) for those badges:
 
-We tried to set up each badge to link to something reasonable, taking our cues from existing projects' choices.
+```markdown
+[![GitHub](https://img.shields.io/github/license/steven-wolfman/ubc-term-finder)](https://github.com/steven-wolfman/ubc-term-finder/blob/main/LICENSE)
+[![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/steven-wolfman/ubc-term-finder/Continuous%20Integration/main)](https://github.com/steven-wolfman/ubc-term-finder/actions/workflows/ci.yml)
+[![GitHub issues](https://img.shields.io/github/issues/steven-wolfman/ubc-term-finder)](https://github.com/steven-wolfman/ubc-term-finder/issues)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+[![GitHub contributors](https://img.shields.io/github/contributors/steven-wolfman/ubc-term-finder)](https://github.com/steven-wolfman/ubc-term-finder/graphs/contributors)
+
+[![GitHub forks](https://img.shields.io/github/forks/steven-wolfman/ubc-term-finder?style=social)](https://github.com/steven-wolfman/ubc-term-finder/network)
+[![GitHub watchers](https://img.shields.io/github/watchers/steven-wolfman/ubc-term-finder?style=social)](https://github.com/steven-wolfman/ubc-term-finder/watchers)
+[![GitHub stars](https://img.shields.io/github/stars/steven-wolfman/ubc-term-finder?style=social)](https://github.com/steven-wolfman/ubc-term-finder/stargazers)
+```
+
+We tried to set up each badge to link to something reasonable, taking our cues from existing projects' choices. That still leaves the elusive code coverage badge!
 
 ### Code Coverage
 
-TODO
+[Code coverage](https://en.wikipedia.org/wiki/Code_coverage) measures how much of your code is being tested. Getting a code coverage badge set up required us to do much more work than the badges above, and `shields.io` does not guide us to the steps needed. We worked from [`codecov.io`'s instructions for GitHub](https://codecov.io/gh), [`codecov.io`'s Node example](https://github.com/codecov/example-node), and [Carl-Johan Kihl's freeCodeCamp tutorial on Jest and Codecov](https://www.freecodecamp.org/news/get-your-npm-package-covered-with-jest-and-codecov-9a4cb22b93f4/).
 
-We worked from [Carl-Johan Kihl's freeCodeCamp tutorial on Jest and Codecov](https://www.freecodecamp.org/news/get-your-npm-package-covered-with-jest-and-codecov-9a4cb22b93f4/).
+Critically, we already set up unit tests, using Jest in our case. You'll want to do that before trying to measure code coverage!
+
+Next, we set up our project to produce code coverage files. You can give the jest [`--coverage` command line flag](https://jestjs.io/docs/cli#--coverageboolean) to start coverage. We instead altered our jest configuration in `jest.config.js`, adding this to our module exports:
+
+```javascript
+  coverageDirectory: "./coverage/",
+  collectCoverage: true,
+```
+
+Now, running `npm test` reports our code coverage, which is not 100%!
+
+```
+----------|---------|----------|---------|---------|-------------------
+File      | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
+----------|---------|----------|---------|---------|-------------------
+All files |    87.5 |    93.33 |     100 |   85.71 |
+ index.ts |    87.5 |    93.33 |     100 |   85.71 | 73
+----------|---------|----------|---------|---------|-------------------
+```
+
+The problem is the unreachable `default` case in our switch statement on the month of the year. (All possible cases 0 through 11 are already handled.) That error case is only present for completeness. We could live with less than 100% coverage, we could delete that `default` case, or we can use jest's underlying [istanbul framework's `ignore` directive](https://github.com/gotwarlost/istanbul/blob/master/ignoring-code-for-coverage.md#the-interface):
+
+```typescript
+    /* istanbul ignore next */
+    default:
+      throw new Error(
+        `received month value "${date.getMonth()}", which is outside the allowable range [0, 11]`
+      );
+```
+
+We decided on the last of these, since the case is legitimately untestable but keeping it may be useful as documentation or sanity-check.
+
+At this point, the `coverage` directory contains jest's coverage report in various formats. We should not commit this directory to our repo, but fortunately we already had the `coverage` directory in our `.gitignore` file.
+
+(Note that every time we run `jest`, we'll use the version instrumented for code coverage, which can add to the runtime of testing. You may want to have a separate workflow that runs the coverage, in which case separate jest configuration files or use of the jest command line may be a better choice for you!)
+
+Now, we need to get `codecov` running. We installed `codecov` with: `npm install --save-dev codecov`. We then added. TODO: connecting it to GitHub account, setting up the token (GitHub secrets??), etc.
+
+Next, we connected Codecov to Steve's GitHub account.
 
 # Unexplained Oddities and Unresolved Thoughts
 
